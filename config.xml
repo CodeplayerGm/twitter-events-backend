@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<root>
+    <database>
+        <mongo>
+            <ip>localhost</ip>
+            <port>27017</port>
+            <username>#</username>
+            <password>#</password>
+        </mongo>
+    {#    <mongo>#}
+    {#        <ip>3.220.111.222</ip>#}
+    {#        <port>27017</port>#}
+    {#        <username>aircas</username>#}
+    {#        <password>aircas@2018</password>#}
+    {#    </mongo>#}
+    </database>
+</root>

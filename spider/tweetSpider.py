@@ -82,7 +82,7 @@ def get_task(event_list):
     print('2019HongKong_protest event_list num:' + str(len(event_list)))
     searchList = list()
     for event in event_list:
-        print(event)
+        # print(event)
         # print(type(event))
         stime = event['event']['stime']
         etime = event['event']['etime']
@@ -91,8 +91,8 @@ def get_task(event_list):
         topics = event['event']['topics']
         q = '(' + location + ')' + ' ' + triggers + ' ' + topics + ' ' + 'since:' + stime + ' ' + 'until:' + etime
         actionId = event['id']
-        message = {'actionId': actionId, 'q': q, 'maxNum': 20000}
-        print(message)
+        message = {'actionId': actionId, 'q': q, 'maxNum': 100}
+        # print(message)
         searchList.append(message)
     return searchList
 

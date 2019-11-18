@@ -1,8 +1,8 @@
-import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, json, re, datetime, sys, http.cookiejar
+import urllib,urllib.request,json,re,datetime,sys,http.cookiejar
 from .. import models
 from pyquery import PyQuery
-import random, requests
-
+import requests
+import random
 random.seed(1)
 
 def fetch_activities(tweet_id):

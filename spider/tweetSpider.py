@@ -1,12 +1,12 @@
 # -*- coding:utf-8 -*-
 # '2019香港'事件获取
-import pymongo
-from .Config_2019 import get_noau_config
+# import pymongo
+from Config_2019 import get_noau_config
 from datetime import datetime
 
-client = pymongo.MongoClient('mongodb://3.220.111.222:27017/')
-client.admin.authenticate("aircas", "aircas@2018", mechanism='SCRAM-SHA-1')
-db = client['2019HongKong_protest']
+# client = pymongo.MongoClient('mongodb://3.220.111.222:27017/')
+# client.admin.authenticate("aircas", "aircas@2018", mechanism='SCRAM-SHA-1')
+# db = client['2019HongKong_protest']
 
 def generateTrigger(triggers):
     res = ''
@@ -99,41 +99,32 @@ def get_task(event_list):
 publicGot, publicDb = get_noau_config()
 # 执行查询语句，获取推文
 def advance_search_dataset(actionId, q, maxNum):  # 获取推文，放入MongoDB数据库
-    try:
-        print('one search action start !')
-        print('q:' + q + '  num:' + str(maxNum))
-        # collection = publicDb.event_list
-        # print('eventlist num:' + str(len(list(collection.find()))))
-        dataset = publicDb.dataset
-        tweetCriteria = publicGot.manager.TweetCriteria().setQuerySearch(q).setMaxTweets(maxNum)
-        tweets = publicGot.manager.TweetManager.getTweets(tweetCriteria)
-        print('tweets num:' + str(len(tweets)))
-        tweetsNum = len(tweets)
-        insertNum = 0
-        for tweet in tweets:
-            # tweet = dict(tweet)
-            # print('tweet content: ' + str(tweet.id) + '===' + str(tweet.text))
-            # print(dataset.find_one({'id': tweet.id}))
-            print(tweet)
-            if dataset.find_one({'id': tweet.id}) is None:  # 查看推文是否已存在，若不存在则放入数据库
-                # print({'id': tweet.id, 'tweet': tweet, 'actionId': actionId, 'f': f, 'q': q})
-                # tweet = {'id': tweet.id, 'permalink': tweet.permalink, 'username': tweet.username,
-                #         'text': tweet.text, 'date': tweet.date, 'formatted_date': tweet.formatted_date,
-                #         'retweets': tweet.retweets, 'favorites': tweet.favorites, 'mentions': tweet.mentions,
-                #         'hashtags': tweet.hashtags, 'geo': tweet.geo, 'urls': tweet.urls, 'author_id': tweet.author_id,
-                #         'actionId': actionId, 'q': q}
-                # print(tweet)
-                dataItem = {'tweet': tweet, 'id': tweet.id, 'q': q}
-                res = dataset.insert_one(dataItem)
-                insertNum += 1
-                print('store result:' + str(res))
-        dataset_log = publicDb.dataset_log
-        timeNow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        dataset_log.insert_one({'actionId': actionId, 'insertTime': timeNow, 'maxNum': maxNum, 'tweetsNum': tweetsNum, 'insertNum': insertNum, 'q': q})
-        return True
-    except:
-        print('run_dataset_task occurs error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    return False
+    # try:
+    print('one search action start !')
+    print('q:' + q + '  num:' + str(maxNum))
+    # collection = publicDb.event_list
+    # print('eventlist num:' + str(len(list(collection.find()))))
+    dataset = publicDb.dataset
+    tweetCriteria = publicGot.manager.TweetCriteria().setQuerySearch(q).setMaxTweets(maxNum)
+    print('set criteria okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
+    tweets = publicGot.manager.TweetManager.getTweets(tweetCriteria)
+    print('tweets num:' + str(len(tweets)))
+    tweetsNum = len(tweets)
+    insertNum = 0
+    for tweet in tweets:
+        print(tweet)
+        if dataset.find_one({'id': tweet.id}) is None:  # 查看推文是否已存在，若不存在则放入数据库
+            dataItem = {'tweet': tweet, 'id': tweet.id, 'q': q}
+            res = dataset.insert_one(dataItem)
+            insertNum += 1
+            print('store result:' + str(res))
+    dataset_log = publicDb.dataset_log
+    timeNow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    dataset_log.insert_one({'actionId': actionId, 'insertTime': timeNow, 'maxNum': maxNum, 'tweetsNum': tweetsNum, 'insertNum': insertNum, 'q': q})
+    return True
+    # except:
+    #     print('run_dataset_task occurs error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    # return False
 
 if __name__ == '__main__':
     stime, etime, locations, triggers, topics = set_conditions()

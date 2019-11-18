@@ -112,12 +112,13 @@ def advance_search_dataset(actionId, q, maxNum):  # 获取推文，放入MongoDB
     tweetsNum = len(tweets)
     insertNum = 0
     for tweet in tweets:
-        print(tweet)
+        # print(tweet)
         if dataset.find_one({'id': tweet['id']}) is None:  # 查看推文是否已存在，若不存在则放入数据库
             dataItem = {'tweet': tweet, 'id': tweet['id'], 'q': q}
             res = dataset.insert_one(dataItem)
             insertNum += 1
-            print('store result:' + str(res))
+            # print('store result:' + str(res))
+            print('store: ' + str(insertNum))
     dataset_log = publicDb.dataset_log
     timeNow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     dataset_log.insert_one({'actionId': actionId, 'insertTime': timeNow, 'maxNum': maxNum, 'tweetsNum': tweetsNum, 'insertNum': insertNum, 'q': q})

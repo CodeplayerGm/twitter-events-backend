@@ -188,7 +188,10 @@ class TweetManager:
                 break
             # 遍历网页中的tweet数据
             for tweetHTML in tweets:
-                tweet = getTweet(tweetHTML)
+                try:
+                    tweet = getTweet(tweetHTML)
+                except:
+                    continue
                 if hasattr(tweetCriteria, 'sinceTimeStamp'):
                     if tweet.created_at < tweetCriteria.sinceTimeStamp:
                         active = False

@@ -7,7 +7,7 @@ from datetime import datetime
 import multiprocessing
 from multiprocessing import Pool
 
-from Config_2019 import get_noau_config, getMongoClient, closeMongoClient
+from .Config_2019 import get_noau_config, getMongoClient, closeMongoClient
 
 publicGot, publicDb = get_noau_config()
 

@@ -9,11 +9,11 @@ def get_noau_config():
     # got文件
     if sys.version_info[0] < 3:
         # print('import got')
-        import got
+        import got2019 as got
     else:
         # print('import got333333333333333333333333333')
         # import got
-        import got3 as got
+        import got2019 as got
 
     # MongoDB数据库
     # client = pymongo.MongoClient(os.environ['MONGOHOST'], 27017, connect=False)
@@ -41,7 +41,7 @@ def closeMongoClient(client):
 def getGot():
     # got文件
     if sys.version_info[0] < 3:
-        import got
+        import got2019 as got
     else:
-        import got3 as got
+        import got2019 as got
     return got

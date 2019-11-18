@@ -1,9 +1,11 @@
 import pymongo
+import os
 from xml.etree import ElementTree as ET
 
 def getMongoClient():
     # 读取xml文件
     file = ET.parse('./config.xml')
+    # file = ET.parse('../config.xml')
     # 获取根节点
     root = file.getroot()
     database = root.findall('database')[0]

@@ -2,7 +2,7 @@ from dbConfig import getMongoClient
 from spider.commonSpider import doTweetSearchOnce
 import re
 from datetime import datetime
-from time import sleep
+from util.util import getProgramWordsListFromExp
 
 # 关键词组列表转换为字符串
 def getProgramKeyWordsStr(keyWords):
@@ -69,11 +69,6 @@ def getProgramIgnoreWordsSearchStr(exp):
     for i in range(len(words)):
         res += '-' + words[i] + ' '
     return res
-
-# 前端关键词表达式转换成list
-def getProgramWordsListFromExp(exp):
-    exp = exp[1: len(exp) - 1]
-    return exp.split('|')
 
 # mongo方案列表转换成前端展示列表
 def getProgramTableList(mongoList):
@@ -172,51 +167,64 @@ def deleteProgramAction(pname):
             'resList': []}
     except:
         client.close()
-        return {
-            'resCode': 0,
-            'resStr': '删除方案出错!',
-            'resObject': '',
-            'resList': []}
+        return {'resCode': 0,
+                'resStr': '删除方案出错!',
+                'resObject': '',
+                'resList': []}
 
 # 启动方案数据爬取
-def startProgramAction(pname):
-    client = getMongoClient()
-    programsDb = client['programs']
-    programsCol = programsDb['programs']
-    collectionLog = programsDb['collectionLog']
-    # 先根据方案名取出方案具体信息
-    query = {'pname': pname}
-    program = programsCol.find_one(query)
-    dbName = program['dbName']
-    stime = program['stime']
-    etime = program['etime']
-    maxNum = program['maxNum']
-    keywords = program['keywords']
-    ignorewords = program['ignorewords']
-    ignoreStr = getProgramIgnoreWordsSearchStr(ignorewords)
-    topics = program['topics']
-    topicsStr = getProgramTopicsSearchStr(topics)
-    status = program['status']
-    # 创建数据库和集合
-    db = client[dbName]
-    # 得到查询语句
-    searchList = getProgramSearchSentences(keywords, stime, etime, ignorewords, ignoreStr, topics, topicsStr)
-    # 依次执行爬取操作
-    for q in searchList:
-        print(q)
-        qResult = doTweetSearchOnce(q, maxNum, db)
-        timeNow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        collectionLog.insert_one({'pname': pname, 'time': timeNow, 'q': q,
-                                  'tweetsNum': qResult['tweetsNum'], 'insertNum': qResult['insertNum']})
-    # 更新方案状态
-    if status == '无数据':
-        newStatus= {"$set": {"status": "已爬取"}}
+def startProgramAction(pname, num):
+    try:
+        client = getMongoClient()
+        programsDb = client['programs']
+        programsCol = programsDb['programs']
+        query = {'pname': pname}
+        newStatus = {"$set": {"status": num}}
         programsCol.update_one(query, newStatus)
-    elif status == '已爬取':
-        newStatus = {"$set": {"status": "已更新"}}
-        programsCol.update_one(query, newStatus)
-    client.close()
-    return {}
+        client.close()
+        return {'resCode': 1,
+                'resStr': '启动方案成功!',
+                'resObject': '',
+                'resList': []}
+    except:
+        return {'resCode': 0,
+                'resStr': '启动方案出错!',
+                'resObject': '',
+                'resList': []}
+    # collectionLog = programsDb['collectionLog']
+    # # 先根据方案名取出方案具体信息
+    # query = {'pname': pname}
+    # program = programsCol.find_one(query)
+    # dbName = program['dbName']
+    # stime = program['stime']
+    # etime = program['etime']
+    # maxNum = program['maxNum']
+    # keywords = program['keywords']
+    # ignorewords = program['ignorewords']
+    # ignoreStr = getProgramIgnoreWordsSearchStr(ignorewords)
+    # topics = program['topics']
+    # topicsStr = getProgramTopicsSearchStr(topics)
+    # status = program['status']
+    # # 创建数据库和集合
+    # db = client[dbName]
+    # # 得到查询语句
+    # searchList = getProgramSearchSentences(keywords, stime, etime, ignorewords, ignoreStr, topics, topicsStr)
+    # # 依次执行爬取操作
+    # for q in searchList:
+    #     print(q)
+    #     qResult = doTweetSearchOnce(q, maxNum, db)
+    #     timeNow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    #     collectionLog.insert_one({'pname': pname, 'time': timeNow, 'q': q,
+    #                               'tweetsNum': qResult['tweetsNum'], 'insertNum': qResult['insertNum']})
+    # # 更新方案状态
+    # if status == '无数据':
+    #     newStatus= {"$set": {"status": "已爬取"}}
+    #     programsCol.update_one(query, newStatus)
+    # elif status == '已爬取':
+    #     newStatus = {"$set": {"status": "已更新"}}
+    #     programsCol.update_one(query, newStatus)
+    # client.close()
+    # return {}
     # for i in range(len(keywords) - 1):
     #     exp = keywords[i]['exp']
     # try:

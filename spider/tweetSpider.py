@@ -91,7 +91,7 @@ def get_task(event_list):
         topics = event['event']['topics']
         q = '(' + location + ')' + ' ' + triggers + ' ' + topics + ' ' + 'since:' + stime + ' ' + 'until:' + etime
         actionId = event['id']
-        message = {'actionId': actionId, 'q': q, 'maxNum': 100}
+        message = {'actionId': actionId, 'q': q, 'maxNum': 20000}
         # print(message)
         searchList.append(message)
     return searchList
@@ -106,7 +106,7 @@ def advance_search_dataset(actionId, q, maxNum):  # 获取推文，放入MongoDB
     # print('eventlist num:' + str(len(list(collection.find()))))
     dataset = publicDb.dataset
     tweetCriteria = publicGot.manager.TweetCriteria().setQuerySearch(q).setMaxTweets(maxNum)
-    print('set criteria okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
+    # print('set criteria okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
     tweets = publicGot.manager.TweetManager.getTweets(tweetCriteria)
     print('tweets num:' + str(len(tweets)))
     tweetsNum = len(tweets)

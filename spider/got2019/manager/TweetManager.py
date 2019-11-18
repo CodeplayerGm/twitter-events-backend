@@ -165,13 +165,14 @@ class TweetManager:
         pass
 
     @staticmethod
-    def getTweets(tweetCriteria, refreshCursor='', receiveBuffer=None, bufferLength=100, proxy=None):
+    def getTweets(tweetCriteria, receiveBuffer=None, bufferLength=100, proxy=None):
+        refreshCursor = ''
         results = []
         resultsAux = []
         cookieJar = http.cookiejar.CookieJar()
 
-        if hasattr(tweetCriteria, 'username') and (tweetCriteria.username.startswith("\'") or tweetCriteria.username.startswith("\"")) and (tweetCriteria.username.endswith("\'") or tweetCriteria.username.endswith("\"")):
-            tweetCriteria.username = tweetCriteria.username[1:-1]
+        # if hasattr(tweetCriteria, 'username') and (tweetCriteria.username.startswith("\'") or tweetCriteria.username.startswith("\"")) and (tweetCriteria.username.endswith("\'") or tweetCriteria.username.endswith("\"")):
+        #     tweetCriteria.username = tweetCriteria.username[1:-1]
 
         active = True
 
@@ -213,31 +214,25 @@ class TweetManager:
 
     @staticmethod
     def getJsonReponse(tweetCriteria, refreshCursor, cookieJar, proxy):
-        url = "https://twitter.com/i/search/timeline?q=%s&src=typd&max_position=%s"
+        url = "https://twitter.com/i/search/timeline?f=tweets&q=%s&src=typd&%smax_position=%s"
         urlGetData = ''
         if hasattr(tweetCriteria, 'username'):
             urlGetData += ' from:' + tweetCriteria.username
-        if hasattr(tweetCriteria, 'querySearch'):
-            urlGetData += ' ' + tweetCriteria.querySearch
-        if hasattr(tweetCriteria, 'near'):
-            urlGetData += "&near:" + tweetCriteria.near + " within:" + tweetCriteria.within
         if hasattr(tweetCriteria, 'since'):
             urlGetData += ' since:' + tweetCriteria.since
         if hasattr(tweetCriteria, 'until'):
             urlGetData += ' until:' + tweetCriteria.until
-        if hasattr(tweetCriteria, 'topTweets'):
-            if tweetCriteria.topTweets:
-                url = "https://twitter.com/i/search/timeline?q=%s&src=typd&max_position=%s"
-        if hasattr(tweetCriteria, 'tweetType'):
-            url = url + tweetCriteria.tweetType
-        url = url % (urllib.parse.quote(urlGetData), refreshCursor)
-        ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.%s' % (
-            random.randint(0, 999))
+        if hasattr(tweetCriteria, 'querySearch'):
+            urlGetData += ' ' + tweetCriteria.querySearch
+        if hasattr(tweetCriteria, 'lang'):
+            urlLang = 'lang=' + tweetCriteria.lang + '&'
+        else:
+            urlLang = ''
+
+        url = url % (urllib.parse.quote(urlGetData), urlLang, refreshCursor)
         headers = [
             ('Host', "twitter.com"),
-            ('User-Agent', ua),
-            # Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36
-            # Mozilla/5.0 (Windows NT 6.1; Win64; x64)
+            ('User-Agent', "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"),
             ('Accept', "application/json, text/javascript, */*; q=0.01"),
             ('Accept-Language', "de,en-US;q=0.7,en;q=0.3"),
             ('X-Requested-With', "XMLHttpRequest"),
@@ -245,20 +240,19 @@ class TweetManager:
             ('Connection', "keep-alive")
         ]
         if proxy:
-            opener = urllib.request.build_opener(urllib.request.ProxyHandler({'http': proxy, 'https': proxy}),
-                                                 urllib.request.HTTPCookieProcessor(cookieJar))
+            opener = urllib.request.build_opener(urllib.request.ProxyHandler({'http': proxy, 'https': proxy}), urllib.request.HTTPCookieProcessor(cookieJar))
         else:
             opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookieJar))
         opener.addheaders = headers
+
         try:
             response = opener.open(url)
             jsonResponse = response.read()
         except:
-            print(
-                "Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd" % urllib.parse.quote(
-                    urlGetData))
+            print("Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd" % urllib.parse.quote(urlGetData))
             print("Unexpected error:", sys.exc_info()[0])
             sys.exit()
-        dataJson = json.loads(jsonResponse)
+
+        dataJson = json.loads(jsonResponse.decode())
 
         return dataJson

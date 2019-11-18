@@ -36,7 +36,7 @@ def advance_search_dataset(q, maxNum, actionId):  # 获取推文，放入MongoDB
             # print(tweet)
             res = dataset.insert_one(tweet)
             insertNum += 1
-            print('store result:' + str(res))
+    print('store result:' + str(insertNum))
     dataset_log = publicDb.dataset_log
     timeNow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     dataset_log.insert_one({'actionId': actionId, 'insertTime': timeNow, 'maxNum': maxNum, 'tweetsNum': tweetsNum, 'insertNum': insertNum, 'q': q})

@@ -179,7 +179,7 @@ class TweetManager:
             json = TweetManager.getJsonReponse(tweetCriteria, refreshCursor, cookieJar, proxy)
             if len(json['items_html'].strip()) == 0:
                 break
-            if not json.has_key('min_position'):
+            if 'min_position' not in json.keys():
                 break
             refreshCursor = json['min_position']
             tweets = PyQuery(json['items_html'])('div.js-stream-tweet')

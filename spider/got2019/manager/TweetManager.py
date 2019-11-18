@@ -1,4 +1,4 @@
-import urllib,urllib.request,json,re,datetime,sys,http.cookiejar
+import urllib,urllib.request,urllib.parse,json,re,datetime,sys,http.cookiejar
 from .. import models
 from pyquery import PyQuery
 import requests
@@ -230,7 +230,7 @@ class TweetManager:
                 url = "https://twitter.com/i/search/timeline?q=%s&src=typd&max_position=%s"
         if hasattr(tweetCriteria, 'tweetType'):
             url = url + tweetCriteria.tweetType
-        url = url % (urllib.quote(urlGetData), refreshCursor)
+        url = url % (urllib.parse.quote(urlGetData), refreshCursor)
         ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.%s' % (
             random.randint(0, 999))
         headers = [
@@ -255,7 +255,7 @@ class TweetManager:
             jsonResponse = response.read()
         except:
             print(
-                "Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd" % urllib.quote(
+                "Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd" % urllib.parse.quote(
                     urlGetData))
             print("Unexpected error:", sys.exc_info()[0])
             sys.exit()

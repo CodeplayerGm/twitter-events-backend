@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*
 # 获得爬取推文所需信息
 # import json
-from .Config_2019 import getMongoClient, closeMongoClient
+from Config_2019 import getMongoClient, closeMongoClient
 
 def get_task():
     client = getMongoClient()

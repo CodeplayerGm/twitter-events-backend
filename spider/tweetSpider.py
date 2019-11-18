@@ -31,7 +31,7 @@ def generateTopic(topics):
 def set_conditions():
     # 设置起始、终止时间
     stime = '2019-03-01'
-    etime = '2019-10-20'
+    etime = '2019-11-10'
 
     # 设置香港事件 查询地点名词
     # locations = 'Hong Kong OR ' + 'Hong Kong Island OR Central and Western District OR Eastern District OR Southern District OR Wan Chai District OR ' + 'Kowloon OR Kowloon City District OR Kwun Tong District OR Sham Shui Po District OR Wong Tai Sin District OR Yau Tsim Mong District OR ' + 'New Territories OR Island District OR Kwai Tsing District OR North District OR Sai Kung District OR Sha Tin District OR Tai Po District OR Tsuen Wan District OR Tuen Mun District OR Yuen Long District OR ' + "Kowloon Reservoir OR Kowloon City OR Kowloon Tong OR Kowloon Bay OR Pat Sin Leng OR Sheung Shui OR Sheung Wan OR To Kwa Wan OR Tai Shui Hang OR Tate's Cairn OR Tai Hang OR Tai Mei Tuk OR Tai Kok Tsui OR Tai Tung Shan OR Sunset Peak OR Tai Po Industrial Estate OR Tai Po OR Tai Po Kau OR Tai Po Market OR " + "Tai Long Wan OR Tai Wai OR Tai Mo Shan OR Tai Wo Hau OR Tai Mong Tsai OR Tai Tam Reservoirs OR Tai Tam Bay OR Tai O OR Lantau Island OR Tai Pang Wan OR Mirs Bay OR Tai Lam Chung OR Tai Lam Chung Reservoir OR Siu Sai Wan OR Siu Lam OR Central and Western OR Central OR Tseng Lan Shue OR Yuen Long OR Fan Lau OR " + "Tin Shui Wai OR Tin Hau OR Prince Edward OR Tai Koo OR Tai Wo OR Tuen Mun OR Fo Tan OR Ngau Chi Wan OR Ngau Mei Hoi OR Port Shelter OR Ngau Tau Kok OR North Point OR North OR Pak Tam Chung OR Ta Kwu Ling OR Ting Kau OR Shek Mun OR Shek Kong OR Shek Kip Mei OR Shek Tong Tsui OR Shek Pik OR Shek Pik Reservoir OR " + "Shek O OR Kei Ling Ha Hoi OR Three Fathoms Cove OR Siu Hong OR Crooked Island OR Tolo Harbour OR Tsim Sha Tsui OR East Tsim Sha Tsui OR Tsim Bei Tsui OR Sai Kung Hoi OR Inner Port Shelter OR Sai Kung OR Sai Ying Pun OR Sai Wan Ho OR Ho Man Tin OR Jordan OR Hang Hau OR Heng Fa Chuen OR Sha Tin Hoi OR Sha Tin OR " + "Sha Tin Wai OR Sha Tau Kok OR Pui O OR Tolo Channel OR Stanley OR Chek Lap Kok OR King's Park OR Wo Hop Shek OR Peng Chau OR Mong Kok OR Ngong Ping OR Ngong Suen Chau OR Stonecutters Island OR Tung Ping Chau OR Tung Chung OR Eastern OR Tung Lung Chau OR Kwo Chau Kwan To OR Lam Tsuen OR Sunny Bay OR Ho Pui Reservoir OR " + "Yau Tsim Mong OR Yau Ma Tei OR Yau Tong OR Admiralty OR Cheung Sha Wan OR Cheung Chau OR Tsing Shan OR Castle Peak OR Tsing Yi OR Tsing Lung Tau"
@@ -118,7 +118,7 @@ def advance_search_dataset(actionId, q, maxNum):  # 获取推文，放入MongoDB
             res = dataset.insert_one(dataItem)
             insertNum += 1
             # print('store result:' + str(res))
-            print('store: ' + str(insertNum))
+    print('store: ' + str(insertNum))
     dataset_log = publicDb.dataset_log
     timeNow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     dataset_log.insert_one({'actionId': actionId, 'insertTime': timeNow, 'maxNum': maxNum, 'tweetsNum': tweetsNum, 'insertNum': insertNum, 'q': q})

@@ -39,7 +39,7 @@ def getTweet(tweetHTML):
     userDoc = PyQuery(userHtml)
     userTweetsNum = userDoc('li.ProfileNav-item--tweets a span.ProfileNav-value').attr('data-count')
     userFollowersNum = userDoc('li.ProfileNav-item--followers a span.ProfileNav-value').attr('data-count')
-    userDesc = userDoc('div.ProfileHeaderCard p.ProfileHeaderCard-bio').text().replace('# ', '#').replace('@ ', '@').replace('\n', ' ')
+    userDesc = userDoc('div.ProfileHeaderCard p.ProfileHeaderCard-bio').text().replace('\n', ' ').replace('# ', '#').replace('@ ', '@')
     userLocation = userDoc('div.ProfileHeaderCard-location span.ProfileHeaderCard-locationText').text()
     print('userInfo: desc:' + str(userDesc))
     print('  is verified:' + str(userbadges) + ';' + str(userLocation))

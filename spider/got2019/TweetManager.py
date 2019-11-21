@@ -1,5 +1,5 @@
 import urllib,urllib.request,urllib.parse,json,re,datetime,sys,http.cookiejar
-import Tweet
+from Tweet import Tweet
 from pyquery import PyQuery
 import requests
 import random

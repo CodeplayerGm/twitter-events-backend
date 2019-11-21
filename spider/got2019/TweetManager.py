@@ -33,11 +33,17 @@ def getTweet(tweetHTML):
     avatar_src = tweetPQ('img.avatar').attr('src')
     userbadges = tweetPQ('span.UserBadges').text()
 
-    # 在发送一次请求，补充用户信息
+    # 在发送一次请求，补充用户信息：用户描述、用户地点、用户发文量、用户关注者
     userRequestURL = 'https://twitter.com/' + screen_name
-    userJson = getHtmlWithURL(userRequestURL)
-    print('get user:' + screen_name + ' info')
-    print(userJson)
+    userHtml = getHtmlWithURL(userRequestURL)
+    userDoc = PyQuery(userHtml)
+    userTweetsNum = userHtml('li.ProfileNav-item--tweets a span.ProfileNav-value').attr('data-count')
+    userFollowersNum = userHtml('li.ProfileNav-item--followers a span.ProfileNav-value').attr('data-count')
+    userDesc = userHtml('div.ProfileHeaderCard p.ProfileHeaderCard-bio').text()
+    userLocation = userHtml('div.ProfileHeaderCard-location span.ProfileHeaderCard-locationText').text()
+    print('userInfo: desc:' + str(userDesc))
+    print('  is verified:' + str(userbadges) + ';' + str(userLocation))
+    print('  action num:' + str(userTweetsNum) + ';' + str(userFollowersNum))
 
 
     # 推文主体 话题、url、推文回复原作者、语言、原文、后续过滤后的内容、
@@ -47,9 +53,6 @@ def getTweet(tweetHTML):
     raw_text = re.sub(r"\s+", " ", tweetPQ("p.js-tweet-text").text().replace('# ', '#').replace('@ ', '@'))
     # standard_text = re.sub(r"\s+", " ", tweetPQ("p.js-tweet-text").text().replace('# ', '').replace('@ ', ''))
     standard_text = ''
-    # tweetPQ('p.js-tweet-text')('a').remove()
-    # tweetPQ('p.js-tweet-text')('img').remove()
-    # clean_text = tweetPQ("p.js-tweet-text").text()
 
     # 推文中的媒体信息：会话推文的最初发布文id、是否包含蓝色链接、图片url、是否有视频数据
     quote_id = tweetPQ('div.QuoteTweet a.QuoteTweet-link').attr('data-conversation-id')
@@ -223,9 +226,6 @@ def getHtmlWithURL(url):
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'
     }
     html = requests.get(url, headers=headers).text
-    with open('./html.txt', 'w') as wf:
-        wf.write(html)
-    print('get html ok!')
     return html
 
 if __name__ == '__main__':

@@ -41,9 +41,9 @@ def getTweet(tweetHTML):
     userFollowersNum = userDoc('li.ProfileNav-item--followers a span.ProfileNav-value').attr('data-count')
     userDesc = userDoc('div.ProfileHeaderCard p.ProfileHeaderCard-bio').text().replace('\n', ' ').replace('# ', '#').replace('@ ', '@')
     userLocation = userDoc('div.ProfileHeaderCard-location span.ProfileHeaderCard-locationText').text()
-    print('userInfo: desc:' + str(userDesc))
-    print('  is verified:' + str(userbadges) + ';' + str(userLocation))
-    print('  action num:' + str(userTweetsNum) + ';' + str(userFollowersNum))
+    # print('userInfo: desc:' + str(userDesc))
+    # print('  is verified:' + str(userbadges) + ';' + str(userLocation))
+    # print('  action num:' + str(userTweetsNum) + ';' + str(userFollowersNum))
 
 
     # 推文主体 话题、url、推文回复原作者、语言、原文、后续过滤后的内容、
@@ -85,6 +85,10 @@ def getTweet(tweetHTML):
         'data_name': data_name,
         'avatar_src': avatar_src,
         'userbadges': userbadges,
+        'tweetsNum': userTweetsNum,
+        'followersNum': userFollowersNum,
+        'desc': userDesc,
+        'location': userLocation
     }
 
     # media

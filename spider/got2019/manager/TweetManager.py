@@ -1,5 +1,5 @@
 import urllib,urllib.request,urllib.parse,json,re,datetime,sys,http.cookiejar
-from .. import models
+from spider.got2019 import models
 from pyquery import PyQuery
 import requests
 import random

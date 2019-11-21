@@ -1,5 +1,4 @@
 import urllib,urllib.request,urllib.parse,json,re,datetime,sys,http.cookiejar
-from Tweet import Tweet
 from pyquery import PyQuery
 import requests
 import random
@@ -155,6 +154,10 @@ def getTweet(tweetHTML):
     }
 
     return tweet
+
+class Tweet:
+    def __init__(self):
+        pass
 
 class TweetManager:
 

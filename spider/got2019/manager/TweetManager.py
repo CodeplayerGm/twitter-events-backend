@@ -78,7 +78,7 @@ def getTweet(tweetHTML):
 
     # 在发送一次请求，补充用户信息
     userRequestURL = 'https://twitter.com/' + screen_name
-    userJson = getJsonResponseWithURL(userRequestURL)
+    userJson = getHtmlWithURL(userRequestURL)
     print('get user:' + screen_name + ' info')
     print(userJson)
 
@@ -258,26 +258,15 @@ class TweetManager:
         return dataJson
 
 
-def getJsonResponseWithURL(url):
-    cookieJar = http.cookiejar.CookieJar()
-    headers = [
-        ('Host', "twitter.com"),
-        ('User-Agent', "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"),
-        ('Accept', "application/json, text/javascript, */*; q=0.01"),
-        ('Accept-Language', "de,en-US;q=0.7,en;q=0.3"),
-        ('X-Requested-With', "XMLHttpRequest"),
-        ('Referer', url),
-        ('Connection', "keep-alive")
-    ]
-    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookieJar))
-    opener.addheaders = headers
-    response = opener.open(url)
-    jsonResponse = response.read()
-    dataJson = json.loads(jsonResponse.decode())
-
-    return dataJson
+def getHtmlWithURL(url):
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'
+    }
+    html = requests.get(url, headers=headers).text
+    print('get html ok!')
+    return html
 
 if __name__ == '__main__':
     userRequestURL = 'https://twitter.com/' + 'Uyghurspeaker'
-    userJson = getJsonResponseWithURL(userRequestURL)
+    userJson = getHtmlWithURL(userRequestURL)
     print(userJson)

@@ -1,5 +1,5 @@
 import urllib,urllib.request,urllib.parse,json,re,datetime,sys,http.cookiejar
-from spider.got2019 import models
+import Tweet
 from pyquery import PyQuery
 import requests
 import random
@@ -62,7 +62,7 @@ def fetch_entities(tweetPQ):
 
 def getTweet(tweetHTML):
     tweetPQ = PyQuery(tweetHTML)
-    tweet = models.Tweet()
+    tweet = Tweet()
 
     # 基本信息：推文id、会话id、
     id = tweetPQ.attr("data-tweet-id")

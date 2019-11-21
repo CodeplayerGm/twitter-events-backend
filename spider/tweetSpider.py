@@ -3,6 +3,7 @@
 # import pymongo
 from Config_2019 import get_noau_config
 from datetime import datetime
+from got2019 import TweetManager, TweetCriteria
 
 # client = pymongo.MongoClient('mongodb://3.220.111.222:27017/')
 # client.admin.authenticate("aircas", "aircas@2018", mechanism='SCRAM-SHA-1')
@@ -77,7 +78,7 @@ def get_task(event_list):
         topics = event['event']['topics']
         q = '(' + location + ')' + ' ' + triggers + ' ' + topics + ' ' + 'since:' + stime + ' ' + 'until:' + etime
         actionId = event['id']
-        message = {'actionId': actionId, 'q': q, 'maxNum': 100}
+        message = {'actionId': actionId, 'q': q, 'maxNum': 1}
         # print(message)
         searchList.append(message)
     return searchList
@@ -91,9 +92,9 @@ def advance_search_dataset(actionId, q, maxNum):  # 获取推文，放入MongoDB
     # collection = publicDb.event_list
     # print('eventlist num:' + str(len(list(collection.find()))))
     dataset = publicDb.dataset
-    tweetCriteria = publicGot.manager.TweetCriteria().setQuerySearch(q).setMaxTweets(maxNum)
+    tweetCriteria = TweetCriteria.TweetCriteria().setQuerySearch(q).setMaxTweets(maxNum)
     print('set criteria okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
-    tweets = publicGot.manager.TweetManager.getTweets(tweetCriteria)
+    tweets = TweetManager.TweetManager.getTweets(tweetCriteria)
     print('get tweets kooooooooooooooooooooooooooooooooooooooo')
     tweetsNum = len(tweets)
     print('tweets num:' + str(tweetsNum))

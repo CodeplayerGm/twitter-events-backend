@@ -1,5 +1,6 @@
 from time import strftime,strptime
 
+
 # 关键词表达式转换成list
 def getProgramWordsListFromExp(exp):
     exp = exp[1: len(exp) - 1]
@@ -44,4 +45,39 @@ def timeConvertYMDHMS(src, timeZone):
     return time
 
 if __name__ == '__main__':
-    ToDecimal2F(1253.1)
+    # ToDecimal2F(1253.1)
+    from dbConfig import getMongoClient
+    myclient = getMongoClient()
+    srcdb = myclient['hongkong_protest']
+    datasetcol = srcdb['dataset']
+    documents = datasetcol.find()
+
+    locData = dict()
+    for doc in documents:
+        q = doc['q']
+        location = q[q.index('(') + 1 : q.index(')')].replace(' ', '')
+        if location not in locData.keys():
+            locData[location] = [doc]
+        else:
+            locData[location].append(doc)
+
+    i = 1
+    tempdb = myclient['temp']
+    for key in locData.keys():
+        print(str(i) + ' ---------------------------------------- location:' + key + ' ' + str(len(locData[key])))
+        i += 1
+        newcol = tempdb[key]
+        for d in locData[key]:
+            newcol.insert_one({'tweet': d['tweet'], 'id': d['id'], 'q': d['q']})
+    # tempdb = myclient['temp']
+
+    from dbConfig import getMongoClient
+    import os
+
+    myclient = getMongoClient()
+    mydb = myclient['temp']
+    colnames = mydb.collection_names()
+    for cname in colnames:
+        cmd = 'mongoexport -d temp -c ' + cname + ' -o ' + 'D:/' + cname + '.json'
+        os.system(cmd)
+

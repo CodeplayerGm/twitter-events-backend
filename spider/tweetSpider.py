@@ -34,33 +34,28 @@ def set_conditions():
     etime = '2019-11-10'
 
     # 设置香港事件 查询地点名词
-    # locations = 'Hong Kong OR ' + 'Hong Kong Island OR Central and Western District OR Eastern District OR Southern District OR Wan Chai District OR ' + 'Kowloon OR Kowloon City District OR Kwun Tong District OR Sham Shui Po District OR Wong Tai Sin District OR Yau Tsim Mong District OR ' + 'New Territories OR Island District OR Kwai Tsing District OR North District OR Sai Kung District OR Sha Tin District OR Tai Po District OR Tsuen Wan District OR Tuen Mun District OR Yuen Long District OR ' + "Kowloon Reservoir OR Kowloon City OR Kowloon Tong OR Kowloon Bay OR Pat Sin Leng OR Sheung Shui OR Sheung Wan OR To Kwa Wan OR Tai Shui Hang OR Tate's Cairn OR Tai Hang OR Tai Mei Tuk OR Tai Kok Tsui OR Tai Tung Shan OR Sunset Peak OR Tai Po Industrial Estate OR Tai Po OR Tai Po Kau OR Tai Po Market OR " + "Tai Long Wan OR Tai Wai OR Tai Mo Shan OR Tai Wo Hau OR Tai Mong Tsai OR Tai Tam Reservoirs OR Tai Tam Bay OR Tai O OR Lantau Island OR Tai Pang Wan OR Mirs Bay OR Tai Lam Chung OR Tai Lam Chung Reservoir OR Siu Sai Wan OR Siu Lam OR Central and Western OR Central OR Tseng Lan Shue OR Yuen Long OR Fan Lau OR " + "Tin Shui Wai OR Tin Hau OR Prince Edward OR Tai Koo OR Tai Wo OR Tuen Mun OR Fo Tan OR Ngau Chi Wan OR Ngau Mei Hoi OR Port Shelter OR Ngau Tau Kok OR North Point OR North OR Pak Tam Chung OR Ta Kwu Ling OR Ting Kau OR Shek Mun OR Shek Kong OR Shek Kip Mei OR Shek Tong Tsui OR Shek Pik OR Shek Pik Reservoir OR " + "Shek O OR Kei Ling Ha Hoi OR Three Fathoms Cove OR Siu Hong OR Crooked Island OR Tolo Harbour OR Tsim Sha Tsui OR East Tsim Sha Tsui OR Tsim Bei Tsui OR Sai Kung Hoi OR Inner Port Shelter OR Sai Kung OR Sai Ying Pun OR Sai Wan Ho OR Ho Man Tin OR Jordan OR Hang Hau OR Heng Fa Chuen OR Sha Tin Hoi OR Sha Tin OR " + "Sha Tin Wai OR Sha Tau Kok OR Pui O OR Tolo Channel OR Stanley OR Chek Lap Kok OR King's Park OR Wo Hop Shek OR Peng Chau OR Mong Kok OR Ngong Ping OR Ngong Suen Chau OR Stonecutters Island OR Tung Ping Chau OR Tung Chung OR Eastern OR Tung Lung Chau OR Kwo Chau Kwan To OR Lam Tsuen OR Sunny Bay OR Ho Pui Reservoir OR " + "Yau Tsim Mong OR Yau Ma Tei OR Yau Tong OR Admiralty OR Cheung Sha Wan OR Cheung Chau OR Tsing Shan OR Castle Peak OR Tsing Yi OR Tsing Lung Tau"
-    locations = ['Hong Kong', 'Hong Kong Island', 'Central and Western District', 'Eastern District',
-                 'Southern District', 'Wan Chai District', 'Kowloon', 'Kowloon City District', 'Kwun Tong District',
-                 'Sham Shui Po District', 'Wong Tai Sin District', 'Yau Tsim Mong District', 'New Territories', 'Island District',
-                 'Kwai Tsing District', 'North District', 'Sai Kung District', 'Sha Tin District', 'Tai Po District', 'Tsuen Wan District',
-                 'Tuen Mun District', 'Yuen Long District', 'Kowloon Reservoir', 'Kowloon City', 'Kowloon Tong',
-                 'Kowloon Bay', 'Pat Sin Leng', 'Sheung Shui', 'Sheung Wan', 'To Kwa Wan',
-                 'Tai Shui Hang', "Tate's Cairn", 'Tai Hang', 'Tai Mei Tuk', 'Tai Kok Tsui', 'Tai Tung Shan',
-                 'Sunset Peak', 'Tai Po', 'Lantau Island',
-                 'Tai Po Market', 'Tai Long Wan', 'Tai Wai', 'Tai Mo Shan', 'Tai Wo Hau', 'Tai O',
-                 'Tai Lam Chung', 'Tai Lam Chung Reservoir', 'Siu Sai Wan', 'Siu Lam', 'Central and Western', 'Central', 'Yuen Long',
-                 'Tin Shui Wai', 'Tin Hau', 'Prince Edward', 'Tai Koo', 'Tai Wo', 'Tuen Mun', 'Fo Tan',
-                 'Ngau Tau Kok', 'North Point', 'North', 'Ting Kau', 'Shek Mun', 'Shek Kong', 'Shek Kip Mei',
-                 'Shek Tong Tsui', 'Shek Pik', 'Shek Pik Reservoir', 'Shek O', 'Kei Ling Ha Hoi', 'Three Fathoms Cove',
-                 'Siu Hong', 'Crooked Island', 'Tolo Harbour', 'Tsim Sha Tsui',
-                 'East Tsim Sha Tsui', 'Tsim Bei Tsui', 'Sai Kung Hoi', 'Sai Kung',
-                 'Sai Ying Pun', 'Sai Wan Ho', 'Ho Man Tin', 'Jordan', 'Hang Hau',
-                 'Heng Fa Chuen', 'Sha Tin', 'Sha Tin Wai', 'Sha Tau Kok', 'Stanley', 'Chek Lap Kok',
-                 'Peng Chau', 'Mong Kok', 'Ngong Ping', 'Ngong Suen Chau', 'Stonecutters Island',
-                 'Tung Chung', 'Eastern', 'Tung Lung Chau', 'Lam Tsuen', 'Sunny Bay', 'Yau Tsim Mong', 'Yau Ma Tei',
-                 'Yau Tong', 'Admiralty', 'Cheung Sha Wan', 'Cheung Chau', 'Tsing Shan', 'Castle Peak', 'Tsing Yi']
+    # locations = ['Hong Kong', 'Hong Kong Island', 'Central and Western District', 'Eastern District',
+    #              'Southern District', 'Wan Chai District', 'Kowloon', 'Kwun Tong District',
+    #              'Sham Shui Po District', 'Wong Tai Sin District', 'Yau Tsim Mong District', 'New Territories', 'Island District',
+    #              'North District', 'Sai Kung District', 'Sha Tin District', 'Tai Po District', 'Tsuen Wan District',
+    #              'Tuen Mun District', 'Yuen Long District', 'Kowloon Tong',
+    #              'Kowloon Bay', 'Pat Sin Leng', 'Sheung Shui', 'Sheung Wan', 'To Kwa Wan',
+    #              'Tai Shui Hang', "Tate's Cairn", 'Tai Hang', 'Tai Kok Tsui', 'Sunset Peak', 'Tai Po', 'Lantau Island',
+    #              'Tai Po Market', 'Tai Long Wan', 'Tai Wai', 'Tai Mo Shan', 'Tai Wo Hau', 'Tai O',
+    #              'Tai Lam Chung', 'Tai Lam Chung Reservoir', 'Siu Sai Wan', 'Siu Lam', 'Central and Western', 'Central', 'Yuen Long',
+    #              'Tin Shui Wai', 'Tin Hau', 'Prince Edward', 'Tai Koo', 'Tai Wo', 'Tuen Mun', 'Fo Tan',
+    #              'Ngau Tau Kok', 'North Point', 'North', 'Shek Mun', 'Shek Kong', 'Shek Kip Mei',
+    #              'Shek Tong Tsui', 'Shek Pik', 'Shek O', 'Siu Hong', 'East Tsim Sha Tsui', 'Tsim Bei Tsui', 'Sai Kung',
+    #              'Sai Ying Pun', 'Sai Wan Ho', 'Ho Man Tin', 'Jordan', 'Hang Hau',
+    #              'Heng Fa Chuen', 'Sha Tin', 'Sha Tin Wai', 'Sha Tau Kok', 'Stanley', 'Chek Lap Kok',
+    #              'Peng Chau', 'Mong Kok', 'Ngong Ping', 'Stonecutters Island',
+    #              'Tung Chung', 'Eastern', 'Lam Tsuen', 'Sunny Bay', 'Yau Tsim Mong', 'Yau Ma Tei',
+    #              'Yau Tong', 'Admiralty', 'Cheung Sha Wan', 'Cheung Chau', 'Tsing Shan', 'Castle Peak', 'Tsing Yi']
+    locations = ['Admiralty']
 
     # 香港事件 查询关键词
     triggers = ['protest', 'protests', 'protesters', 'citizens', 'march', 'marched', 'police', 'government', 'officers',
-                'lam',
-                'carrie', 'political', 'force', 'violence', 'riot', 'mainland', 'independent', 'lawmakers',
-                'revolution']
+                'lam', 'carrie', 'political', 'force', 'violence', 'riot', 'mainland', 'independent', 'lawmakers', 'revolution']
 
     # 香港事件 查询话题
     topics = ['#HongKong', '#HongKongProtests', '#HongKongProtesters', '#HK', '#HKprotests', '#FreeHK', '#china',
@@ -82,7 +77,7 @@ def get_task(event_list):
         topics = event['event']['topics']
         q = '(' + location + ')' + ' ' + triggers + ' ' + topics + ' ' + 'since:' + stime + ' ' + 'until:' + etime
         actionId = event['id']
-        message = {'actionId': actionId, 'q': q, 'maxNum': 20000}
+        message = {'actionId': actionId, 'q': q, 'maxNum': 100}
         # print(message)
         searchList.append(message)
     return searchList
@@ -99,20 +94,20 @@ def advance_search_dataset(actionId, q, maxNum):  # 获取推文，放入MongoDB
     tweetCriteria = publicGot.manager.TweetCriteria().setQuerySearch(q).setMaxTweets(maxNum)
     # print('set criteria okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
     tweets = publicGot.manager.TweetManager.getTweets(tweetCriteria)
-    print('tweets num:' + str(len(tweets)))
     tweetsNum = len(tweets)
-    insertNum = 0
-    for tweet in tweets:
-        # print(tweet)
-        if dataset.find_one({'id': tweet['id']}) is None:  # 查看推文是否已存在，若不存在则放入数据库
-            dataItem = {'tweet': tweet, 'id': tweet['id'], 'q': q}
-            res = dataset.insert_one(dataItem)
-            insertNum += 1
-            # print('store result:' + str(res))
-    print('store: ' + str(insertNum))
-    dataset_log = publicDb.dataset_log
-    timeNow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    dataset_log.insert_one({'actionId': actionId, 'insertTime': timeNow, 'maxNum': maxNum, 'tweetsNum': tweetsNum, 'insertNum': insertNum, 'q': q})
+    print('tweets num:' + str(tweetsNum))
+    # insertNum = 0
+    # for tweet in tweets:
+    #     # print(tweet)
+    #     if dataset.find_one({'id': tweet['id']}) is None:  # 查看推文是否已存在，若不存在则放入数据库
+    #         dataItem = {'tweet': tweet, 'id': tweet['id'], 'q': q}
+    #         res = dataset.insert_one(dataItem)
+    #         insertNum += 1
+    #         # print('store result:' + str(res))
+    # print('store: ' + str(insertNum))
+    # dataset_log = publicDb.dataset_log
+    # timeNow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # dataset_log.insert_one({'actionId': actionId, 'insertTime': timeNow, 'maxNum': maxNum, 'tweetsNum': tweetsNum, 'insertNum': insertNum, 'q': q})
     return True
     # except:
     #     print('run_dataset_task occurs error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')

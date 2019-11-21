@@ -64,44 +64,46 @@ def getTweet(tweetHTML):
     tweetPQ = PyQuery(tweetHTML)
     tweet = models.Tweet()
 
-    # base info
+    # 基本信息：推文id、会话id、
     id = tweetPQ.attr("data-tweet-id")
     conversation_id = tweetPQ.attr('data-conversation-id')
-    dateSec = int(tweetPQ("small.time span.js-short-timestamp").attr("data-time"))
-    # permalink = tweetPQ.attr("data-permalink-path")
+    createdTimeStamp = int(tweetPQ("small.time span.js-short-timestamp").attr("data-time"))
 
-    # user
+    # 用户基本信息：规范网名、用户id、网名、头像链接、账号认证信息
     screen_name = tweetPQ.attr('data-screen-name')
     user_id = tweetPQ.attr('data-user-id')
     data_name = tweetPQ.attr('data-name')
     avatar_src = tweetPQ('img.avatar').attr('src')
     userbadges = tweetPQ('span.UserBadges').text()
 
-    # text
+    # 在发送一次请求，补充用户信息
+    userRequestURL = 'https://twitter.com/' + screen_name
+    userJson = getJsonResponseWithURL(userRequestURL)
+    print('get user:' + screen_name + ' info')
+    print(userJson)
+
+
+    # 推文主体 话题、url、推文回复原作者、语言、原文、后续过滤后的内容、
     hashtags, urls = fetch_entities(tweetPQ)
     mentions = tweetPQ.attr("data-mentions")
     lang = tweetPQ("p.js-tweet-text").attr('lang')
     raw_text = re.sub(r"\s+", " ", tweetPQ("p.js-tweet-text").text().replace('# ', '#').replace('@ ', '@'))
-    standard_text = re.sub(r"\s+", " ", tweetPQ("p.js-tweet-text").text().replace('# ', '').replace('@ ', ''))
-    tweetPQ('p.js-tweet-text')('a').remove()
-    tweetPQ('p.js-tweet-text')('img').remove()
+    # standard_text = re.sub(r"\s+", " ", tweetPQ("p.js-tweet-text").text().replace('# ', '').replace('@ ', ''))
+    standard_text = ''
+    # tweetPQ('p.js-tweet-text')('a').remove()
+    # tweetPQ('p.js-tweet-text')('img').remove()
     # clean_text = tweetPQ("p.js-tweet-text").text()
 
-    # media
+    # 推文中的媒体信息：会话推文的最初发布文id、是否包含蓝色链接、图片url、是否有视频数据
     quote_id = tweetPQ('div.QuoteTweet a.QuoteTweet-link').attr('data-conversation-id')
     has_cards = tweetPQ.attr('data-has-cards')
     card_url = tweetPQ('div.js-macaw-cards-iframe-container').attr('data-card-url')
     img_src = tweetPQ('div.AdaptiveMedia-container img').attr('src')
-    video_src = tweetPQ('div.AdaptiveMedia-container video').attr('src')
-    geo = ''
-    geoSpan = tweetPQ('span.Tweet-geo')
-    if len(geoSpan) > 0:
-        geo = geoSpan.attr('title')
+    video_src = True if tweetPQ('div.AdaptiveMedia-video') else False
 
-    # action
+    # 推文动作信息：转发原作者id、原作者、回复量、转发量、喜欢量
     retweet_id = tweetPQ.attr('data-retweet-id')
     retweeter = tweetPQ.attr('data-retweeter')
-    # retusers,favorusers = fetch_activities(id)
     replies = int(
         tweetPQ("span.ProfileTweet-action--reply span.ProfileTweet-actionCount").attr("data-tweet-stat-count").replace(
             ",", ""))
@@ -110,12 +112,11 @@ def getTweet(tweetHTML):
     favorites = int(tweetPQ("span.ProfileTweet-action--favorite span.ProfileTweet-actionCount").attr(
         "data-tweet-stat-count").replace(",", ""))
 
-    ## tweet model
+    ## tweet数据类型
     tweet.id = id
     tweet.conversation_id = conversation_id
     tweet.is_reply = tweet.id != tweet.conversation_id
-    tweet.created_at = datetime.datetime.fromtimestamp(dateSec)
-    # tweet.permalink = 'https://twitter.com' + permalink
+    tweet.created_at = datetime.datetime.fromtimestamp(createdTimeStamp)
 
     # user
     tweet.user = {
@@ -132,8 +133,7 @@ def getTweet(tweetHTML):
         'has_cards': has_cards,
         'card_url': card_url,
         'img_src': img_src,
-        'video_src': video_src,
-        'geo': geo
+        'has_video': video_src
     }
 
     # text
@@ -143,12 +143,9 @@ def getTweet(tweetHTML):
     tweet.lang = lang
     tweet.raw_text = raw_text
     tweet.standard_text = standard_text
-    # tweet.clean_text = clean_text
 
     # action
     tweet.action = {
-        # 'retusers':retusers,
-        # 'favorusers':favorusers,
         'replies': replies,
         'retweets': retweets,
         'favorites': favorites,
@@ -259,3 +256,28 @@ class TweetManager:
         dataJson = json.loads(jsonResponse.decode())
 
         return dataJson
+
+
+def getJsonResponseWithURL(url):
+    cookieJar = http.cookiejar.CookieJar()
+    headers = [
+        ('Host', "twitter.com"),
+        ('User-Agent', "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"),
+        ('Accept', "application/json, text/javascript, */*; q=0.01"),
+        ('Accept-Language', "de,en-US;q=0.7,en;q=0.3"),
+        ('X-Requested-With', "XMLHttpRequest"),
+        ('Referer', url),
+        ('Connection', "keep-alive")
+    ]
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookieJar))
+    opener.addheaders = headers
+    response = opener.open(url)
+    jsonResponse = response.read()
+    dataJson = json.loads(jsonResponse.decode())
+
+    return dataJson
+
+if __name__ == '__main__':
+    userRequestURL = 'https://twitter.com/' + 'Uyghurspeaker'
+    userJson = getJsonResponseWithURL(userRequestURL)
+    print(userJson)

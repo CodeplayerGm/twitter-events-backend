@@ -4,6 +4,7 @@
 from Config_2019 import getDBByName
 from datetime import datetime
 from got2019 import TweetManager, TweetCriteria
+import time
 
 def generateTrigger(triggers):
     res = ''
@@ -33,8 +34,6 @@ def set_conditions():
     # 设置香港事件 查询地点名词
     locations = ['Sham Shui Po District', 'Wong Tai Sin District', 'Yau Tsim Mong District', 'New Territories', 'Island District',
                  'North District', 'Sai Kung District', 'Sha Tin District', 'Tai Po District', 'Tsuen Wan District',
-                 'Hong Kong', 'Hong Kong Island', 'Central and Western District', 'Eastern District',
-                 'Southern District', 'Wan Chai District', 'Kowloon', 'Kwun Tong District',
                  'Tuen Mun District', 'Yuen Long District', 'Kowloon Tong',
                  'Kowloon Bay', 'Pat Sin Leng', 'Sheung Shui', 'Sheung Wan', 'To Kwa Wan',
                  'Tai Shui Hang', "Tate's Cairn", 'Tai Hang', 'Tai Kok Tsui', 'Sunset Peak', 'Tai Po', 'Lantau Island',
@@ -47,7 +46,9 @@ def set_conditions():
                  'Heng Fa Chuen', 'Sha Tin', 'Sha Tin Wai', 'Sha Tau Kok', 'Stanley', 'Chek Lap Kok',
                  'Peng Chau', 'Mong Kok', 'Ngong Ping', 'Stonecutters Island',
                  'Tung Chung', 'Eastern', 'Lam Tsuen', 'Sunny Bay', 'Yau Tsim Mong', 'Yau Ma Tei',
-                 'Yau Tong', 'Admiralty', 'Cheung Sha Wan', 'Cheung Chau', 'Tsing Shan', 'Castle Peak', 'Tsing Yi']
+                 'Yau Tong', 'Admiralty', 'Cheung Sha Wan', 'Cheung Chau', 'Tsing Shan', 'Castle Peak', 'Tsing Yi',
+                 'Hong Kong Island', 'Central and Western District', 'Eastern District',
+                 'Southern District', 'Wan Chai District', 'Kowloon', 'Kwun Tong District', 'Hong Kong']
     # locations = ['Admiralty']
 
     # 香港事件 查询关键词
@@ -74,7 +75,7 @@ def get_task(event_list):
         topics = event['event']['topics']
         q = '(' + location + ')' + ' ' + triggers + ' ' + topics + ' ' + 'since:' + stime + ' ' + 'until:' + etime
         actionId = event['id']
-        message = {'actionId': actionId, 'q': q, 'maxNum': 20000}
+        message = {'actionId': actionId, 'q': q, 'maxNum': 15000}
         # print(message)
         searchList.append(message)
     return searchList
@@ -110,6 +111,7 @@ def advance_search_dataset(actionId, q, maxNum):  # 获取推文，放入MongoDB
     # return False
 
 if __name__ == '__main__':
+    time_start = time.time()
     stime, etime, locations, triggers, topics = set_conditions()
     # 组织查询条件
     requests = list()
@@ -130,3 +132,5 @@ if __name__ == '__main__':
         print('2019HongKong_protest craw_worker process!')
         advance_search_dataset(actionId, q, maxNum)  # 获取推文
     print('2019HongKong_protest craw_worker finish!')
+    time_end = time.time()
+    print('totally cost', time_end - time_start)

@@ -153,18 +153,21 @@ class TweetManager:
                 break
             # 遍历网页中的tweet数据
             for tweetHTML in tweets:
-                # try:
-                tweet = getTweet(tweetHTML)
-                # except:
-                #     continue
+                try:
+                    tweet = getTweet(tweetHTML)
+                except:
+                    print('get one tweet failed ***')
+                    continue
                 if hasattr(tweetCriteria, 'sinceTimeStamp'):
                     if tweet.created_at < tweetCriteria.sinceTimeStamp:
                         active = False
                         break
                 if hasattr(tweetCriteria, 'untilTimeStamp'):
                     if tweet.created_at <= tweetCriteria.untilTimeStamp:
+                        print('one more tweet ---')
                         results.append(tweet.__dict__)
                 else:
+                    print('one more tweet ---')
                     results.append(tweet.__dict__)
 
                 if receiveBuffer and len(resultsAux) >= bufferLength:

@@ -31,10 +31,10 @@ def set_conditions():
     etime = '2019-11-10'
 
     # 设置香港事件 查询地点名词
-    locations = ['Hong Kong', 'Hong Kong Island', 'Central and Western District', 'Eastern District',
-                 'Southern District', 'Wan Chai District', 'Kowloon', 'Kwun Tong District',
-                 'Sham Shui Po District', 'Wong Tai Sin District', 'Yau Tsim Mong District', 'New Territories', 'Island District',
+    locations = ['Sham Shui Po District', 'Wong Tai Sin District', 'Yau Tsim Mong District', 'New Territories', 'Island District',
                  'North District', 'Sai Kung District', 'Sha Tin District', 'Tai Po District', 'Tsuen Wan District',
+                 'Hong Kong', 'Hong Kong Island', 'Central and Western District', 'Eastern District',
+                 'Southern District', 'Wan Chai District', 'Kowloon', 'Kwun Tong District',
                  'Tuen Mun District', 'Yuen Long District', 'Kowloon Tong',
                  'Kowloon Bay', 'Pat Sin Leng', 'Sheung Shui', 'Sheung Wan', 'To Kwa Wan',
                  'Tai Shui Hang', "Tate's Cairn", 'Tai Hang', 'Tai Kok Tsui', 'Sunset Peak', 'Tai Po', 'Lantau Island',

@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 # '2019香港'事件获取
 # import pymongo
-from Config_2019 import get_noau_config
+from Config_2019 import getDBByName
 from datetime import datetime
 from got2019 import TweetManager, TweetCriteria
 
@@ -83,7 +83,6 @@ def get_task(event_list):
         searchList.append(message)
     return searchList
 
-publicGot, publicDb = get_noau_config()
 # 执行查询语句，获取推文
 def advance_search_dataset(actionId, q, maxNum):  # 获取推文，放入MongoDB数据库
     # try:
@@ -91,7 +90,8 @@ def advance_search_dataset(actionId, q, maxNum):  # 获取推文，放入MongoDB
     print('q:' + q + '  num:' + str(maxNum))
     # collection = publicDb.event_list
     # print('eventlist num:' + str(len(list(collection.find()))))
-    dataset = publicDb.dataset
+    db = getDBByName('2019HongKong_protest')
+    dataset = db.dataset
     tweetCriteria = TweetCriteria.TweetCriteria().setQuerySearch(q).setMaxTweets(maxNum)
     print('set criteria okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
     tweets = TweetManager.TweetManager.getTweets(tweetCriteria)

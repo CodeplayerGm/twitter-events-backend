@@ -4,48 +4,6 @@ import requests
 import random
 random.seed(1)
 
-def fetch_activities(tweet_id):
-    retusers = []
-    favorusers = []
-    re_url = 'https://twitter.com/i/activity/retweeted_popup?id=%s' % (tweet_id)
-    favor_url = 'https://twitter.com/i/activity/favorited_popup?id=%s' % (tweet_id)
-    headers = {
-        'Host': "twitter.com",
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.%s' % (
-            random.randint(0, 999)),
-        'Accept': "application/json, text/javascript, */*; q=0.01",
-        'Accept-Language': "de,en-US;q=0.7,en;q=0.3",
-        'X-Requested-With': "XMLHttpRequest",
-        'Referer': 'https://twitter.com/',
-        'Connection': "keep-alive",
-    }
-    re_users = PyQuery(requests.get(re_url, headers=headers).json()['htmlUsers'])('ol.activity-popup-users')
-    for re_user in re_users('div.account'):
-        userPQ = PyQuery(re_user)
-        userd = {
-            'screen_name': userPQ.attr('data-screen-name'),
-            'user_id': userPQ.attr('data-user-id'),
-            'data_name': userPQ.attr('data-name'),
-            'avatar_src': userPQ('img.avatar').attr('src'),
-            'userbadges': userPQ('span.UserBadges').text(),
-            'bio': userPQ('p.bio').text(),
-        }
-        retusers.append({userd['screen_name']: userd})
-    favor_users = PyQuery(requests.get(favor_url, headers=headers).json()['htmlUsers'])('ol.activity-popup-users')
-    for favor_user in favor_users('div.account'):
-        userPQ = PyQuery(favor_user)
-        userd = {
-            'screen_name': userPQ.attr('data-screen-name'),
-            'user_id': userPQ.attr('data-user-id'),
-            'data_name': userPQ.attr('data-name'),
-            'avatar_src': userPQ('img.avatar').attr('src'),
-            'userbadges': userPQ('span.UserBadges').text(),
-            'bio': userPQ('p.bio').text(),
-        }
-        favorusers.append({userd['screen_name']: userd})
-
-    return retusers, favorusers
-
 def fetch_entities(tweetPQ):
     hashtags = []
     urls = []
@@ -260,12 +218,13 @@ class TweetManager:
 
         return dataJson
 
-
 def getHtmlWithURL(url):
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'
     }
     html = requests.get(url, headers=headers).text
+    with open('./html.txt', 'w') as wf:
+        wf.write(html)
     print('get html ok!')
     return html
 

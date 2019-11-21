@@ -37,7 +37,13 @@ def getMongoClient():
 
 def closeMongoClient(client):
     client.close()
-    
+
+def getDBByName(dbName):
+    client = pymongo.MongoClient('3.220.111.222', 27017, connect=False)
+    client.admin.authenticate("aircas", "aircas@2018", mechanism='SCRAM-SHA-1')
+    db = client[dbName]
+    return db
+
 def getGot():
     # got文件
     if sys.version_info[0] < 3:

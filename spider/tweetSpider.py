@@ -92,8 +92,9 @@ def advance_search_dataset(actionId, q, maxNum):  # 获取推文，放入MongoDB
     # print('eventlist num:' + str(len(list(collection.find()))))
     dataset = publicDb.dataset
     tweetCriteria = publicGot.manager.TweetCriteria().setQuerySearch(q).setMaxTweets(maxNum)
-    # print('set criteria okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
+    print('set criteria okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
     tweets = publicGot.manager.TweetManager.getTweets(tweetCriteria)
+    print('get tweets kooooooooooooooooooooooooooooooooooooooo')
     tweetsNum = len(tweets)
     print('tweets num:' + str(tweetsNum))
     # insertNum = 0

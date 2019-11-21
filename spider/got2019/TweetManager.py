@@ -37,10 +37,10 @@ def getTweet(tweetHTML):
     userRequestURL = 'https://twitter.com/' + screen_name
     userHtml = getHtmlWithURL(userRequestURL)
     userDoc = PyQuery(userHtml)
-    userTweetsNum = userHtml('li.ProfileNav-item--tweets a span.ProfileNav-value').attr('data-count')
-    userFollowersNum = userHtml('li.ProfileNav-item--followers a span.ProfileNav-value').attr('data-count')
-    userDesc = userHtml('div.ProfileHeaderCard p.ProfileHeaderCard-bio').text()
-    userLocation = userHtml('div.ProfileHeaderCard-location span.ProfileHeaderCard-locationText').text()
+    userTweetsNum = userDoc('li.ProfileNav-item--tweets a span.ProfileNav-value').attr('data-count')
+    userFollowersNum = userDoc('li.ProfileNav-item--followers a span.ProfileNav-value').attr('data-count')
+    userDesc = userDoc('div.ProfileHeaderCard p.ProfileHeaderCard-bio').text()
+    userLocation = userDoc('div.ProfileHeaderCard-location span.ProfileHeaderCard-locationText').text()
     print('userInfo: desc:' + str(userDesc))
     print('  is verified:' + str(userbadges) + ';' + str(userLocation))
     print('  action num:' + str(userTweetsNum) + ';' + str(userFollowersNum))
@@ -230,5 +230,8 @@ def getHtmlWithURL(url):
 
 if __name__ == '__main__':
     userRequestURL = 'https://twitter.com/' + 'Uyghurspeaker'
-    userJson = getHtmlWithURL(userRequestURL)
-    print(userJson)
+    testUrl = 'https://www.liaoxuefeng.com/wiki/896043488029600/900375748016320'
+    html = getHtmlWithURL(testUrl)
+    doc = PyQuery(html)
+    s = doc('div.uk-grid div.x-footer-copyright p a').attr('title')
+    print(s)

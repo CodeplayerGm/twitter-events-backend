@@ -34,15 +34,17 @@ if __name__ == '__main__':
         userInfoDict[sname] = {'tweetsNum': userTweetsNum, 'followersNum': userFollowersNum, 'desc': userDesc, 'location': userLocation}
         print(str(count) + 'th user ' + sname + ' spider finish!')
         count += 1
+        if count == 10:
+            break
     time_end = time.time()
     print('用户信息爬取耗时：', time_end - time_start)
     # 重新写入完整的推文
     print('开始写入完整推文 ')
-    dataCol = db['data']
+    dataCol = db['dataSetFull']
     time_start = time.time()
     count = 1
-    for dataItem in dataList:
-        tweet = dataItem['tweet']
+    for item in dataList:
+        tweet = item['tweet']
         userScreenName = tweet['user']['screen_name']
         fullTweet = dict()
         fullTweet['id'] = tweet['id']
@@ -66,22 +68,10 @@ if __name__ == '__main__':
             'desc': userInfoDict[userScreenName]['desc'],
             'location': userInfoDict[userScreenName]['location']
         }
-        fullTweet['media'] = {
-            'quote_id': tweet['media']['quote_id'],
-            'has_cards': tweet['media']['has_cards'],
-            'card_url': tweet['media']['card_url'],
-            'img_src': tweet['media']['img_src'],
-            'has_video': tweet['media']['has_video']
-        }
-        fullTweet['action'] = {
-            'replies': tweet['action']['replies'],
-            'retweets': tweet['action']['retweets'],
-            'favorites': tweet['action']['favorites'],
-            'retweet_id': tweet['action']['retweet_id'],
-            'retweeter': tweet['action']['retweeter'],
-            'is_retweet': tweet['action']['is_retweet']
-        }
-        dataCol.insert_one({'tweet': fullTweet, 'id': dataItem['id'], 'q': dataItem['q']})
+        fullTweet['media'] = tweet['media']
+        fullTweet['action'] = tweet['action']
+        print(fullTweet)
+        dataCol.insert_one({'tweet': fullTweet, 'id': item['id'], 'q': item['q']})
         print(str(count) + '个推文信息已写入！')
         count += 1
     time_end = time.time()

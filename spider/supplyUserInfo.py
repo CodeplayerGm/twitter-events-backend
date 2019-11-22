@@ -1,7 +1,7 @@
 from Config_2019 import getDBByName
 import time
 from pyquery import PyQuery
-from TweetManager import getHtmlWithURL
+from got2019.TweetManager import getHtmlWithURL
 
 if __name__ == '__main__':
     # 先查询已爬取的推文，获得已有的用户screen_name集

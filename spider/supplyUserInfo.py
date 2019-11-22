@@ -34,13 +34,12 @@ if __name__ == '__main__':
         userInfoDict[sname] = {'tweetsNum': userTweetsNum, 'followersNum': userFollowersNum, 'desc': userDesc, 'location': userLocation}
         print(str(count) + 'th user ' + sname + ' spider finish!')
         count += 1
-        if count == 10:
-            break
     time_end = time.time()
     print('用户信息爬取耗时：', time_end - time_start)
     # 重新写入完整的推文
     print('开始写入完整推文 ')
     dataCol = db['dataSetFull']
+    # 重新执行查询，刷新cursor
     dataList = dataset.find()
     time_start = time.time()
     count = 1

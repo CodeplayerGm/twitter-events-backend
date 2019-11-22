@@ -9,11 +9,14 @@ if __name__ == '__main__':
     dataset = db.dataset
     dataList = dataset.find()
     screenNameList = list()
+    dataSetCount = 0
     for dataItem in dataList:
+        dataSetCount += 1
         tweet = dataItem['tweet']
         userScreenName = tweet['user']['screen_name']
-        screenNameList.append(userScreenName)
-    print('当前共有推文：' + str(len(list(dataList))) + '条。 待补充信息的用户：' + str(len(screenNameList)))
+        if userScreenName not in screenNameList:
+            screenNameList.append(userScreenName)
+    print('当前共有推文：' + str(dataSetCount) + '条。 待补充信息的用户：' + str(len(screenNameList)))
     # 根据screenName生成查询用户信息url，获取各screenName对应的用户信息
     print('开始爬取用户信息')
     urlPrefix = 'https://twitter.com/'

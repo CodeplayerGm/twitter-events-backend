@@ -75,7 +75,7 @@ def get_task(event_list):
         topics = event['event']['topics']
         q = '(' + location + ')' + ' ' + triggers + ' ' + topics + ' ' + 'since:' + stime + ' ' + 'until:' + etime
         actionId = event['id']
-        message = {'actionId': actionId, 'q': q, 'maxNum': 15000}
+        message = {'actionId': actionId, 'q': q, 'maxNum': 20000}
         # print(message)
         searchList.append(message)
     return searchList

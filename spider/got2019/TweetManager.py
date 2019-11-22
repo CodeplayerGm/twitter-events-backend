@@ -34,13 +34,13 @@ def getTweet(tweetHTML):
     userbadges = tweetPQ('span.UserBadges').text()
 
     # 在发送一次请求，补充用户信息：用户描述、用户地点、用户发文量、用户关注者
-    userRequestURL = 'https://twitter.com/' + screen_name
-    userHtml = getHtmlWithURL(userRequestURL)
-    userDoc = PyQuery(userHtml)
-    userTweetsNum = userDoc('li.ProfileNav-item--tweets a span.ProfileNav-value').attr('data-count')
-    userFollowersNum = userDoc('li.ProfileNav-item--followers a span.ProfileNav-value').attr('data-count')
-    userDesc = userDoc('div.ProfileHeaderCard p.ProfileHeaderCard-bio').text().replace('\n', ' ').replace('# ', '#').replace('@ ', '@')
-    userLocation = userDoc('div.ProfileHeaderCard-location span.ProfileHeaderCard-locationText').text()
+    # userRequestURL = 'https://twitter.com/' + screen_name
+    # userHtml = getHtmlWithURL(userRequestURL)
+    # userDoc = PyQuery(userHtml)
+    # userTweetsNum = userDoc('li.ProfileNav-item--tweets a span.ProfileNav-value').attr('data-count')
+    # userFollowersNum = userDoc('li.ProfileNav-item--followers a span.ProfileNav-value').attr('data-count')
+    # userDesc = userDoc('div.ProfileHeaderCard p.ProfileHeaderCard-bio').text().replace('\n', ' ').replace('# ', '#').replace('@ ', '@')
+    # userLocation = userDoc('div.ProfileHeaderCard-location span.ProfileHeaderCard-locationText').text()
     # print('userInfo: desc:' + str(userDesc))
     # print('  is verified:' + str(userbadges) + ';' + str(userLocation))
     # print('  action num:' + str(userTweetsNum) + ';' + str(userFollowersNum))
@@ -84,11 +84,7 @@ def getTweet(tweetHTML):
         'user_id': user_id,
         'data_name': data_name,
         'avatar_src': avatar_src,
-        'userbadges': userbadges,
-        'tweetsNum': userTweetsNum,
-        'followersNum': userFollowersNum,
-        'desc': userDesc,
-        'location': userLocation
+        'userbadges': userbadges
     }
 
     # media
@@ -136,11 +132,7 @@ class TweetManager:
         resultsAux = []
         cookieJar = http.cookiejar.CookieJar()
 
-        # if hasattr(tweetCriteria, 'username') and (tweetCriteria.username.startswith("\'") or tweetCriteria.username.startswith("\"")) and (tweetCriteria.username.endswith("\'") or tweetCriteria.username.endswith("\"")):
-        #     tweetCriteria.username = tweetCriteria.username[1:-1]
-
         active = True
-
         while active:
             json = TweetManager.getJsonReponse(tweetCriteria, refreshCursor, cookieJar, proxy)
             if len(json['items_html'].strip()) == 0:

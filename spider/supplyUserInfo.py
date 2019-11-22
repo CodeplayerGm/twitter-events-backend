@@ -41,6 +41,7 @@ if __name__ == '__main__':
     # 重新写入完整的推文
     print('开始写入完整推文 ')
     dataCol = db['dataSetFull']
+    dataList = dataset.find()
     time_start = time.time()
     count = 1
     for item in dataList:

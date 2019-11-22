@@ -45,31 +45,34 @@ def timeConvertYMDHMS(src, timeZone):
     return time
 
 if __name__ == '__main__':
-    # ToDecimal2F(1253.1)
-    from dbConfig import getMongoClient
-    myclient = getMongoClient()
-    srcdb = myclient['hongkong_protest']
-    datasetcol = srcdb['dataset']
-    documents = datasetcol.find()
-
-    locData = dict()
-    for doc in documents:
-        q = doc['q']
-        location = q[q.index('(') + 1 : q.index(')')].replace(' ', '')
-        if location not in locData.keys():
-            locData[location] = [doc]
-        else:
-            locData[location].append(doc)
-
-    i = 1
-    tempdb = myclient['temp']
-    for key in locData.keys():
-        print(str(i) + ' ---------------------------------------- location:' + key + ' ' + str(len(locData[key])))
-        i += 1
-        newcol = tempdb[key]
-        for d in locData[key]:
-            newcol.insert_one({'tweet': d['tweet'], 'id': d['id'], 'q': d['q']})
+    # from dbConfig import getMongoClient
+    # myclient = getMongoClient()
+    # srcdb = myclient['hongkong_protest']
+    # datasetcol = srcdb['dataset']
+    # documents = datasetcol.find()
+    #
+    # # 每2000条写入一个集合
+    # loopCount = 0
+    # colIndex = 1
+    # tempdbData = dict()
+    # loopList = list()
+    # for doc in documents:
+    #     loopList.append(doc)
+    #     loopCount += 1
+    #     if loopCount == 2000:
+    #         tempdbData[colIndex] = loopList
+    #         loopList = []
+    #         loopCount = 0
+    #         colIndex += 1
+    # if loopCount != 0:
+    #     tempdbData[colIndex] = loopList
+    #
+    # # 写入temp db
     # tempdb = myclient['temp']
+    # for key in tempdbData.keys():
+    #     newcol = tempdb['dataset' + str(key)]
+    #     for d in tempdbData[key]:
+    #         newcol.insert_one({'tweet': d['tweet'], 'id': d['id'], 'q': d['q']})
 
     from dbConfig import getMongoClient
     import os

@@ -2,6 +2,7 @@ import urllib,urllib.request,urllib.parse,json,re,datetime,sys,http.cookiejar
 from pyquery import PyQuery
 import requests
 import random
+import pytz
 random.seed(1)
 
 def fetch_entities(tweetPQ):
@@ -76,7 +77,9 @@ def getTweet(tweetHTML):
     tweet.id = id
     tweet.conversation_id = conversation_id
     tweet.is_reply = tweet.id != tweet.conversation_id
-    tweet.created_at = datetime.datetime.fromtimestamp(createdTimeStamp)
+    timeZone = pytz.timezone('Asia/Shanghai')
+    dateTime = pytz.datetime.datetime.fromtimestamp(createdTimeStamp, timeZone)
+    tweet.created_at = dateTime.strftime('%Y-%m-%d %H:%M:%S')
 
     # user
     tweet.user = {

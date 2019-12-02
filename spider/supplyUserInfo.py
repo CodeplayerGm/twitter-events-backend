@@ -43,11 +43,11 @@ def spiderUserInfo(dbName):
                                'location': userLocation}
         # 爬取用户头像数据
         userAvatarSrc = screenNameDict[sname]['avatar_src']
-        if userAvatarSrc[-19:] not in alreadyExistList:
+        fileName = sname + '.jpg'
+        if fileName not in alreadyExistList:
             userAvatarHtml = getHtmlWithURL(userAvatarSrc)
             if userAvatarHtml.status_code == 200:
-                fileName = userAvatarSavePath + '/' + userAvatarSrc[-19:]
-                with open(fileName, "wb") as f:
+                with open(userAvatarSavePath + '/' + fileName, "wb") as f:
                     f.write(userAvatarHtml.content)
             elif userAvatarHtml.status_code == 404:
                 print('爬取用户：' + sname + '的头像失败，url:' + userAvatarSrc)

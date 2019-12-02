@@ -97,4 +97,4 @@ def spiderUserInfo(dbName):
     # print('写入新信息耗时：', time_end - time_start)
 
 if __name__ == '__main__':
-    spiderUserInfo('temp')
+    spiderUserInfo('2019HongKong_protest')

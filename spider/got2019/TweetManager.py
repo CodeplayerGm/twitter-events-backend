@@ -227,13 +227,20 @@ def getHtmlWithURL(url):
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'
     }
-    html = requests.get(url, headers=headers).text
+
+    html = requests.get(url, headers = headers)
     return html
 
 if __name__ == '__main__':
-    userRequestURL = 'https://twitter.com/' + 'Uyghurspeaker'
-    testUrl = 'https://www.liaoxuefeng.com/wiki/896043488029600/900375748016320'
-    html = getHtmlWithURL(testUrl)
-    doc = PyQuery(html)
-    s = doc('div.uk-grid div.x-footer-copyright p a').attr('title')
-    print(s)
+    # userRequestURL = 'https://twitter.com/' + 'Uyghurspeaker'
+    # testUrl = 'https://www.liaoxuefeng.com/wiki/896043488029600/900375748016320'
+    # html = getHtmlWithURL(testUrl).text
+    # doc = PyQuery(html)
+    # s = doc('div.uk-grid div.x-footer-copyright p a').attr('title')
+    # print(s)
+
+    google = 'https://gss0.baidu.com/94o3dSag_xI4khGko9WTAnF6hhy/zhidao/wh%3D600%2C800/sign=b6335496f3faaf5184b689b9bc64b8d6/1b4c510fd9f9d72a1871ecadda2a2834349bbb6d.jpg'
+    html = getHtmlWithURL(google)
+    fileName = './pic.jpg'
+    with open(fileName, "wb") as f:
+        f.write(html.content)

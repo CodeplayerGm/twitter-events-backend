@@ -44,6 +44,11 @@ def getDBByName(dbName):
     db = client[dbName]
     return db
 
+def getLocalDbByName(dbName):
+    client = pymongo.MongoClient('127.0.0.1', 27017, connect=False)
+    db = client[dbName]
+    return db
+
 def getGot():
     # got文件
     if sys.version_info[0] < 3:

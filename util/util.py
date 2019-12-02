@@ -15,18 +15,11 @@ def getEventSummaryWordsStr(wordList):
             wordStr += '、'
     return wordStr
 
-# 给定mongoClient，查询聚类结果数据库的推文数量
-def getAllTweetListLength(client):
-    db = client['cluster_demo']
-    cNameList = db.collection_names()
+# 给定clusterTweetDict，查询聚类结果数据库的推文数量
+def getAllTweetListLength(clusterTweetDict):
     length = 0
-    for cName in cNameList:
-        # 取每个事件簇
-        collection = db[cName]
-        # 取全部子事件
-        subEvents = collection.find()
-        for subEvent in subEvents:
-            length += len(subEvent['tweet_list'])
+    for key in clusterTweetDict.keys():
+        length += len(clusterTweetDict[key])
     return length
 
 # 保留两位小数
@@ -44,12 +37,51 @@ def timeConvertYMDHMS(src, timeZone):
     time = strftime("%Y-%m-%d %H:%M:%S", strptime(src, '%a %b %d %H:%M:%S ' + timeZone + ' %Y'))
     return time
 
+# 根据参数，设置热点地区的地图焦点大小，参数：maxPercent最大点占总点数百分比
+#                                             maxSize最大点大小
+#                                             minPercent最小点占总点数百分比
+#                                             minSize最小点大小
+#                                             resList最多前100个地点数据
+def setHotMapPointSizeValue(maxPercent, maxSize, minPercent, minSize, resList):
+    standardResList = resList
+    # 先统计各个热度值的点数量
+    sum = len(resList)
+    maxNum = int(sum * maxPercent)
+    minNum = int(sum * minPercent)
+    hotNumDict = dict()
+    for res in resList:
+        hot = res['value'][2]
+        if hot in hotNumDict.keys():
+            hotNumDict[hot] += 1
+        else:
+            hotNumDict[hot] = 1
+    # 按key排序，从大到小
+    sortedList = sorted(hotNumDict.items(), key=lambda x: x[0], reverse=True)
+    # 得到最大、最小点阈值
+    maxThrehold = sortedList[maxNum - 1][0]
+    minThrehold = sortedList[sum - minNum][0]
+    # 中间大小的点换算系数
+    midRate = (maxSize - minSize) / (maxThrehold - minThrehold)
+    # 重新规划各个点的大小
+    for res in standardResList:
+        hot = res['value'][2]
+        if hot >= maxThrehold:
+            res['value'][2] = maxSize
+        elif hot <= minThrehold:
+            res['value'][2] = minSize
+        else:
+            res['value'][2] = minSize + ToDecimal2F((hot - minThrehold) * midRate)
+    # print('max、min num:' + str(maxNum) + ',' + str(minNum))
+    # print('maxThrehold、minThrehold:' + str(maxThrehold) + ',' + str(minThrehold))
+    return standardResList
+
+
 if __name__ == '__main__':
     # from dbConfig import getMongoClient
     # myclient = getMongoClient()
     # srcdb = myclient['hongkong_protest']
-    # datasetcol = srcdb['dataset']
-    # documents = datasetcol.find()
+    # datacol = srcdb['datasetFull']
+    # documents = datacol.find()
     #
     # # 每2000条写入一个集合
     # loopCount = 0

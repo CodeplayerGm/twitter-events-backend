@@ -1,5 +1,4 @@
 from dbConfig import getMongoClient
-from spider.commonSpider import doTweetSearchOnce
 import re
 from datetime import datetime
 from util.util import getProgramWordsListFromExp

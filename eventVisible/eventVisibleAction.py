@@ -1,26 +1,44 @@
 from dbConfig import getMongoClient
-import random
-from util.util import getProgramWordsListFromExp, getEventSummaryWordsStr, getAllTweetListLength, ToDecimal2F, timeConvertYMD, timeConvertYMDHMS
+from util.util import getProgramWordsListFromExp, getEventSummaryWordsStr, getAllTweetListLength, ToDecimal2F, setHotMapPointSizeValue
 
 # 获取事件词云数据
 def getWordCloudDataAction(clusterDbName):
     try:
         client = getMongoClient()
         db = client[clusterDbName]
-        cNameList = db.collection_names()
+        clusterResultCol = db['clusterResult']
+        clusters = clusterResultCol.find()
         keyWordsDic = dict()
-        for cName in cNameList:
-            # 取每个事件簇
-            collection = db[cName]
-            # 取全部子事件
-            subEvents = collection.find()
-            for subEvent in subEvents:
-                keyWords = subEvent['summary']['keywords']
-                for word in keyWords:
-                    if word in keyWordsDic.keys():
-                        keyWordsDic[word] += 1
-                    else:
-                        keyWordsDic[word] = 1
+        geoWordsDic = dict()
+        for cluster in clusters:
+            keywords = cluster['summary']['keywords']
+            geowords = cluster['summary']['geowords']
+            for word in keywords:
+                if word in keyWordsDic.keys():
+                    keyWordsDic[word] += 1
+                else:
+                    keyWordsDic[word] = 1
+            for wordItem in geowords:
+                word = wordItem[0]
+                freq = wordItem[1]
+                if word in geoWordsDic.keys():
+                    geoWordsDic[word] += freq
+                else:
+                    geoWordsDic[word] = freq
+        # cNameList = db.collection_names()
+        # keyWordsDic = dict()
+        # for cName in cNameList:
+        #     # 取每个事件簇
+        #     collection = db[cName]
+        #     # 取全部子事件
+        #     subEvents = collection.find()
+        #     for subEvent in subEvents:
+        #         keyWords = subEvent['summary']['keywords']
+        #         for word in keyWords:
+        #             if word in keyWordsDic.keys():
+        #                 keyWordsDic[word] += 1
+        #             else:
+        #                 keyWordsDic[word] = 1
     except:
         return {'resCode': 0,
                 'resStr': '词云数据库查询失败',
@@ -28,14 +46,19 @@ def getWordCloudDataAction(clusterDbName):
                 'resList': []}
     # 按频次排序
     sortedKeyWords = sorted(keyWordsDic.items(), key=lambda x: x[1], reverse=True)
+    sortedGeoWords = sorted(geoWordsDic.items(), key=lambda x: x[1], reverse=True)
     # for item in sortedKeyWords:
     #     print(item[0] + ':' + str(item[1]))
-    # 显示结果保留最多40个
+    # 显示结果保留最多40个  30个keywords 10个geowords
     result = list()
-    if len(sortedKeyWords) > 40:
-        tempList = sortedKeyWords[0:40]
+    if len(sortedKeyWords) > 30:
+        tempList = sortedKeyWords[0:30]
     else:
         tempList = sortedKeyWords
+    if len(sortedGeoWords) > 10:
+        tempList += sortedGeoWords[0:10]
+    else:
+        tempList += sortedGeoWords
     for item in tempList:
         result.append({'name': item[0], 'value': item[1]})
     client.close()
@@ -49,29 +72,25 @@ def getMapHotDataAction(clusterDbName):
     try:
         client = getMongoClient()
         db = client[clusterDbName]
-        cNameList = db.collection_names()
+        clusterResultCol = db['clusterResult']
+        clusters = clusterResultCol.find()
         addressInfo = dict()
-        for cName in cNameList:
-            # 取每个事件簇
-            collection = db[cName]
-            # 取全部子事件
-            subEvents = collection.find()
-            for subEvent in subEvents:
-                geo_infer = subEvent['geo_infer']
-                hot = float(subEvent['summary']['hot'])
-                for geoItem in geo_infer:
-                    address = geoItem['address']
-                    country = geoItem['country']
-                    centerLat = (float(geoItem['bbox']['northeast'][0]) + float(geoItem['bbox']['southwest'][0])) / 2
-                    centerLng = (float(geoItem['bbox']['northeast'][1]) + float(geoItem['bbox']['southwest'][1])) / 2
-                    # print(address + ';' + country + ';' + str(centerLat) + ';' + str(centerLng) + ';' + str(hot))
-                    if address:
-                        if address in addressInfo.keys():
-                            addressInfo[address]['hotSum'] += hot
-                            addressInfo[address]['hotCount'] += 1
-                        else:
-                            addressInfo[address] = {'hotSum': hot, 'hotCount': 1, 'country': country, 'geo': {'lat': centerLat, 'lng': centerLng}}
-                    # print(addressInfo[address])
+        for cluster in clusters:
+            hot = cluster['summary']['hot']
+            geo_infer = cluster['geo_infer']
+            for geoItem in geo_infer:
+                address = geoItem['address']
+                lat = geoItem['lat']
+                lon = geoItem['lon']
+                freq = geoItem['freq']
+                country = geoItem['country']
+                # print(address + ';' + country + ';' + str(centerLat) + ';' + str(centerLng) + ';' + str(hot))
+                if address:
+                    if address in addressInfo.keys():
+                        addressInfo[address]['hotSum'] += hot * freq
+                        addressInfo[address]['hotCount'] += 1
+                    else:
+                        addressInfo[address] = {'hotSum': hot, 'hotCount': 1, 'geo': {'lat': lat, 'lng': lon}, 'country': country}
         resultInfo = {'addressInfo': {}, 'countryInfo': []}
         countryInfoDic = dict()
         # 计算各个address的热点平均值
@@ -81,7 +100,7 @@ def getMapHotDataAction(clusterDbName):
             country = addressInfo[key]['country']
             resultInfo['addressInfo'][key] = {'hot': hotAve, 'geo': geo}
             if country:
-                if country and country in countryInfoDic.keys():
+                if country in countryInfoDic.keys():
                     countryInfoDic[country] += hotAve
                 else:
                     countryInfoDic[country] = hotAve
@@ -91,9 +110,6 @@ def getMapHotDataAction(clusterDbName):
             resultInfo['countryInfo'] = countryInfoList[0:10]
         else:
             resultInfo['countryInfo'] = countryInfoList
-        # for item in resultInfo['countryInfo']:
-        #     print('country:' + item[0])
-        #     print(item[1])
         client.close()
         return {'resCode': 1,
                 'resStr': '获取热点地图数据成功',
@@ -109,39 +125,47 @@ def getMapHotDataAction(clusterDbName):
 def convertMapAddressData(addressInfo, mapZoom):
     res = list()
     for address in addressInfo.keys():
-        hot = addressInfo[address]['hot']
+        hot = ToDecimal2F(addressInfo[address]['hot'])
         lat = addressInfo[address]['geo']['lat']
         lng = addressInfo[address]['geo']['lng']
-        rawValue = ToDecimal2F(hot / 15 * mapZoom)
-        sizeValue = 500 if rawValue > 500 else rawValue
-        sizeValue = 80 if sizeValue < 80 else sizeValue
-        res.append({'name': address, 'value': [lng, lat, sizeValue, ToDecimal2F(hot)]})
+        # rawValue = ToDecimal2F(hot / 15 * mapZoom)
+        # sizeValue = 500 if rawValue > 500 else rawValue
+        # sizeValue = 80 if sizeValue < 80 else sizeValue
+        res.append({'name': address, 'value': [lng, lat, hot, hot]})
+        # print({'name': address, 'value': [lng, lat, sizeValue, ToDecimal2F(hot)]})
+    # 当地点数据过多时，取前100个
+    res.sort(key=lambda item: item["value"][3], reverse=True)
+    res = res[0:100]
+    # 设置点大小
+    res = setHotMapPointSizeValue(0.1, 500, 0.3, 80, res)
     return res
 
 # 获取事件讨论走势数据
-def getDiscussionTrendDataAction(clusterDbName):
+def getDiscussionTrendDataAction(clusterDbName, clusterTweetDict):
     try:
-        client = getMongoClient()
-        db = client[clusterDbName]
-        cNameList = db.collection_names()
+        # client = getMongoClient()
+        # db = client[clusterDbName]
+        # clusterResultCol = db['clusterResult']
+        # clusters = clusterResultCol.find()
         discussionInfo = dict()
-        for cName in cNameList:
-            # 取每个事件簇
-            collection = db[cName]
-            # 取全部子事件
-            subEvents = collection.find()
-            for subEvent in subEvents:
-                time_infer = subEvent['time_infer']
-                mostPossibleTime = time_infer['most_possible_time'][0:10]
-                tweetsNum = len(subEvent['tweet_list'])
-                # print(mostPossibleTime)
-                if mostPossibleTime in discussionInfo.keys():
-                    discussionInfo[mostPossibleTime] += tweetsNum
+        # for cluster in clusters:
+        #     mostPossibleTime = cluster['time_infer']['most_possible_time'][0:10]
+        #     cluid = cluster['cluid']
+        #     tweetsNum = len(clusterTweetDict[cluid])
+        #     if mostPossibleTime in discussionInfo.keys():
+        #         discussionInfo[mostPossibleTime] += tweetsNum
+        #     else:
+        #         discussionInfo[mostPossibleTime] = tweetsNum
+
+        for key in clusterTweetDict.keys():
+            tweetList = clusterTweetDict[key]
+            for tweet in tweetList:
+                time = tweet['created_at'][0:10]
+                if time in discussionInfo.keys():
+                    discussionInfo[time] += 1
                 else:
-                    discussionInfo[mostPossibleTime] = tweetsNum
-        # for key in discussionInfo.keys():
-        #     print(key + '：' + str(discussionInfo[key]))
-        client.close()
+                    discussionInfo[time] = 1
+        # client.close()
         return {'resCode': 1,
                 'resStr': '获取事件讨论走势数据成功',
                 'resObject': discussionInfo,
@@ -157,19 +181,15 @@ def getEventLevelDataAction(clusterDbName):
     try:
         client = getMongoClient()
         db = client[clusterDbName]
-        cNameList = db.collection_names()
+        clusterResultCol = db['clusterResult']
+        clusters = clusterResultCol.find()
         levelInfo = dict()
-        for cName in cNameList:
-            # 取每个事件簇
-            collection = db[cName]
-            # 取全部子事件
-            subEvents = collection.find()
-            for subEvent in subEvents:
-                level = subEvent['summary']['level']
-                if level in levelInfo.keys():
-                    levelInfo[level] += 1
-                else:
-                    levelInfo[level] = 1
+        for cluster in clusters:
+            level = cluster['summary']['level']
+            if level in levelInfo.keys():
+                levelInfo[level] += 1
+            else:
+                levelInfo[level] = 1
         # for key in levelInfo.keys():
         #     print(key + '：' + str(levelInfo[key]))
         client.close()
@@ -189,12 +209,12 @@ def getBestTweet(tweetsList):
     tweetNumsDict = dict()
     tweetIndex = 0
     for tweet in tweetsList:
-        # 过滤掉 转发和回复他人的 推文；恐怖袭击类数据只有是否是回复状态
-        if not tweet['is_quote_status']:
+        # 过滤掉 转发他人的 推文；
+        if not tweet['action']['is_retweet']:
             # 取推文的回复、转发、喜欢数量计算重要程度；恐怖袭击类数据缺少回复数量，采用随机数补充
-            replyNum = random.randint(0, 9)
-            retweetNum = tweet['retweet_count']
-            likeNum = tweet['favorite_count']
+            replyNum = tweet['action']['replies']
+            retweetNum = tweet['action']['retweets']
+            likeNum = tweet['action']['favorites']
             points = replyNum * 3 + retweetNum * 4 + likeNum * 5
             tweetPointsIndexDict[tweetIndex] = points
             tweetNumsDict[tweetIndex] = {'replyNum': replyNum, 'retweetNum': retweetNum, 'likeNum': likeNum}
@@ -206,40 +226,35 @@ def getBestTweet(tweetsList):
     return bestTweet, tweetNumsDict[bestIndex]
 
 # 获取热门tweeter数据
-def getPopularTweeterDataAction(clusterDbName):
+def getPopularTweeterDataAction(clusterDbName, clusterTweetDict):
     try:
+        # 先取热度最高的前 20 个事件实例
         client = getMongoClient()
         db = client[clusterDbName]
-        cNameList = db.collection_names()
-        # 先取热度最高的前 20 个事件实例
+        clusterResultCol = db['clusterResult']
+        clusters = clusterResultCol.find()
         highHotEvents = list()
         eventHotIndexDict = dict()
         index = 0
-        for cName in cNameList:
-            # 取每个事件簇
-            collection = db[cName]
-            # 取全部子事件
-            subEvents = collection.find()
-            for subEvent in subEvents:
-                hot = subEvent['summary']['hot']
-                eventHotIndexDict[index] = hot
-                index += 1
-                highHotEvents.append(subEvent)
+        for cluster in clusters:
+            hot = cluster['summary']['hot']
+            eventHotIndexDict[index] = hot
+            index += 1
+            highHotEvents.append(cluster)
+        # 热度值排序，取前20个
         eventHotIndexOrdered = sorted(eventHotIndexDict.items(), key=lambda x: x[1], reverse=True)[0:20]
         # 从每个事件实例的tweets列表中取出最具代表性的一条推文及作者信息
         resultList = list()
         for eventItem in eventHotIndexOrdered:
             event = highHotEvents[eventItem[0]]
-            tweetsList = event['tweet_list']
+            cluid = event['cluid']
+            tweetsList = clusterTweetDict[cluid]
             bestTweet, tweetActionNums = getBestTweet(tweetsList)
             # 获取推文内容以及作者数据
-            text = bestTweet['text']
-            if len(bestTweet['entities']['user_mentions']) > 0:
-                userName = bestTweet['entities']['user_mentions'][0]['name']
-            else:
-                userName = 'None'
+            text = bestTweet['standard_text']
+            userName = bestTweet['user']['data_name']
             userHeadSrc = 'none'
-            time = timeConvertYMDHMS(bestTweet['created_at'], '+0000')
+            time = bestTweet['created_at']
             resultList.append({'userName': userName, 'userHead': userHeadSrc, 'time': time, 'text': text, 'tweetNums': tweetActionNums})
         # for r in resultList:
         #     print(r)
@@ -255,7 +270,7 @@ def getPopularTweeterDataAction(clusterDbName):
                 'resList': []}
 
 # 获取事件概述方案描述数据
-def getEventSummaryProgramDataAction(pname):
+def getEventSummaryProgramDataAction(pname, clusterTweetDict):
     try:
         client = getMongoClient()
         db = client['programs']
@@ -317,7 +332,7 @@ def getEventSummaryProgramDataAction(pname):
             stime = resProgram['stime']
             etime = resProgram['etime']
             result += '采集了从' + stime + '到' + etime + '的推文数据，'
-            allTweetNum = getAllTweetListLength(client)
+            allTweetNum = getAllTweetListLength(clusterTweetDict)
             result += '对其中与事件相关的' + str(allTweetNum) + '条推文进行了统计分析。'
             # print(result)
             client.close()
@@ -380,10 +395,13 @@ def getEventTimePotList(discussionTrendXAxisData, discussionTrendYAxisData):
         discussionSum += item
     discussionAve = discussionSum * 1.0 / len(discussionTrendYAxisData)
     timePots = list()
+    maxPotSize = 8
     for index in range(len(discussionTrendYAxisData)):
         item = discussionTrendYAxisData[index]
         if item > discussionAve:
             timePots.append(discussionTrendXAxisData[index])
+            if len(timePots) == maxPotSize:
+                break
     return timePots
 
 # 根据事件讨论走势数据，获取话题爆发时间节点结果串
@@ -401,21 +419,16 @@ def getEventTimeSE(clusterDbName):
     try:
         client = getMongoClient()
         db = client[clusterDbName]
-        cNameList = db.collection_names()
+        clusterResultCol = db['clusterResult']
+        clusters = clusterResultCol.find()
         etime = '0000-00-00'
         stime = '9999-99-99'
-        for cName in cNameList:
-            # 取每个事件簇
-            collection = db[cName]
-            # 取全部子事件
-            subEvents = collection.find()
-            for subEvent in subEvents:
-                time_infer = subEvent['time_infer']
-                mostPossibleTime = time_infer['most_possible_time'][0:10]
-                if mostPossibleTime < stime:
-                    stime = mostPossibleTime
-                if mostPossibleTime > etime:
-                    etime = mostPossibleTime
+        for cluster in clusters:
+            mostPossibleTime = cluster['time_infer']['most_possible_time'][0:10]
+            if mostPossibleTime < stime:
+                stime = mostPossibleTime
+            if mostPossibleTime > etime:
+                etime = mostPossibleTime
         timeInfo = {'stime': stime, 'etime': etime}
         client.close()
         return {'resCode': 1,
@@ -429,32 +442,28 @@ def getEventTimeSE(clusterDbName):
                 'resList': []}
 
 # 根据给定的时间节点，找到最重要的一条推文
-def getTweetWithTimePots(timePots, clusterDbName):
+def getTweetWithTimePots(timePots, clusterDbName, clusterTweetDict):
     try:
         client = getMongoClient()
         db = client[clusterDbName]
-        cNameList = db.collection_names()
+        clusterResultCol = db['clusterResult']
+        clusters = clusterResultCol.find()
         # 先获取各时间节点的全部tweet
         timeTweetsDict = dict()
-        for cName in cNameList:
-            # 取每个事件簇
-            collection = db[cName]
-            # 取全部子事件
-            subEvents = collection.find()
-            for subEvent in subEvents:
-                time_infer = subEvent['time_infer']
-                mostPossibleTime = time_infer['most_possible_time'][0:10]
-                # 先判断该事件实例的可能时间是否在时间节点中
-                if mostPossibleTime in timePots:
-                    # 取出和mostPossibleTime时间一致的推文
-                    tweetList = subEvent['tweet_list']
-                    for tweet in tweetList:
-                        time = timeConvertYMD(tweet['created_at'], '+0000')
-                        if time == mostPossibleTime:
-                            if time in timeTweetsDict.keys():
-                                timeTweetsDict[time].append(tweet)
-                            else:
-                                timeTweetsDict[time] = [tweet]
+        for cluster in clusters:
+            mostPossibleTime = cluster['time_infer']['most_possible_time'][0:10]
+            cluid = cluster['cluid']
+            # 先判断该事件实例的可能时间是否在时间节点中
+            if mostPossibleTime in timePots:
+                # 取出和mostPossibleTime时间一致的推文
+                tweetList = clusterTweetDict[cluid]
+                for tweet in tweetList:
+                    time = tweet['created_at'][0:10]
+                    if time == mostPossibleTime:
+                        if time in timeTweetsDict.keys():
+                            timeTweetsDict[time].append(tweet)
+                        else:
+                            timeTweetsDict[time] = [tweet]
         # 针对timeTweetsDict 每个时间的tweetList，选出一条
         timeTweetsData = list()
         timeKeys = list(timeTweetsDict.keys())
@@ -462,13 +471,10 @@ def getTweetWithTimePots(timePots, clusterDbName):
         for i in range(len(timeKeys)):
             time = timeKeys[i]
             bestTweet, tweetActionNums = getBestTweet(timeTweetsDict[time])
-            text = bestTweet['text']
-            if len(bestTweet['entities']['user_mentions']) > 0:
-                userName = bestTweet['entities']['user_mentions'][0]['name']
-            else:
-                userName = 'None'
+            text = bestTweet['standard_text']
+            userName = bestTweet['user']['data_name']
             userHeadSrc = 'none'
-            hm = timeConvertYMDHMS(bestTweet['created_at'], '+0000')[11:16]
+            hm = bestTweet['created_at'][11:16]
             timeTweetsData.append({'userName': userName, 'userHead': userHeadSrc, 'text': text, 'tweetNums': tweetActionNums, 'time': {'ymd': time, 'hm': hm}})
         client.close()
         return {'resCode': 1,
@@ -481,12 +487,14 @@ def getTweetWithTimePots(timePots, clusterDbName):
                 'resObject': '',
                 'resList': []}
 
-# 获取指定方案的事件分析数据
+# 获取指定方案的事件分析数据 -- 完整
 def getEventAnalysisFullDataAction(pname, dbName):
     fullResult = dict()
     clusterDbName = 'cluster_' + dbName
+    # 提前查询各cluster对应的tweetList，供后续统计使用
+    clusterTweetDict = getClusterTweetListDict(clusterDbName)
     # 获取事件概述-方案描述部分数据  类型：字符串
-    response = getEventSummaryProgramDataAction(pname)
+    response = getEventSummaryProgramDataAction(pname, clusterTweetDict)
     if response['resCode'] == 1:
         eventSummaryProgramStr = response['resObject']
     else:
@@ -515,7 +523,7 @@ def getEventAnalysisFullDataAction(pname, dbName):
     else:
         return response
     # 获取事件讨论走势数据  类型：dict  key-时间  value-推特条数
-    response = getDiscussionTrendDataAction(clusterDbName)
+    response = getDiscussionTrendDataAction(clusterDbName, clusterTweetDict)
     if response['resCode'] == 1:
         discussionTrendDict = response['resObject']
         discussionTrendXAxisData = list()
@@ -539,7 +547,7 @@ def getEventAnalysisFullDataAction(pname, dbName):
     else:
         return response
     # 获取热门tweeter数据  类型：list-dict  [{userName, userHead, text, tweetNums}]
-    response = getPopularTweeterDataAction(clusterDbName)
+    response = getPopularTweeterDataAction(clusterDbName, clusterTweetDict)
     if response['resCode'] == 1:
         popularTweeterData = response['resList']
     else:
@@ -568,42 +576,30 @@ def getEventAnalysisFullDataAction(pname, dbName):
             timePots.append(eventEtime)
         timePots.sort()
         # 根据各个时间节点，找出一条推文
-        response = getTweetWithTimePots(timePots, clusterDbName)
+        response = getTweetWithTimePots(timePots, clusterDbName, clusterTweetDict)
         if response['resCode'] == 1:
             timeTrackData = response['resList']
         else:
             return response
     else:
         return response
-    # 查询图表加载项配置信息
-    response = getEventAnalysisConfigDataAction()
-    if response['resCode'] == 1:
-        config = response['resObject']
-        fullResult['config'] = config
-        fullResult['eventSummary'] = eventSummaryProgramStr + eventSummaryAnalysisStr
-        if config['wordCloud']:
-            fullResult['wordCloudData'] = wordCloudData
-        if config['mapHot']:
-            fullResult['mapAddressData'] = mapAddressData
-            fullResult['mapCountryData'] = mapCountryData
-            fullResult['mapCountryYAxisData'] = mapCountryYAxisData
-        if config['discussionTrend']:
-            fullResult['discussionTrendXAxisData'] = discussionTrendXAxisData
-            fullResult['discussionTrendYAxisData'] = discussionTrendYAxisData
-        if config['levelPie']:
-            fullResult['levelPieLegendData'] = levelPieLegendData
-            fullResult['levelPieData'] = levelPieData
-        if config['popularTweeter']:
-            fullResult['popularTweeterData'] = popularTweeterData
-        if config['timeTrack']:
-            fullResult['timeTrackData'] = timeTrackData
-        # print(fullResult)
-        return {'resCode': 1,
-                'resStr': '获取事件分析结果数据成功',
-                'resObject': fullResult,
-                'resList': []}
-    else:
-        return response
+    # 组织完整数据
+    fullResult['eventSummary'] = eventSummaryProgramStr + eventSummaryAnalysisStr
+    fullResult['wordCloudData'] = wordCloudData
+    fullResult['mapAddressData'] = mapAddressData
+    fullResult['mapCountryData'] = mapCountryData
+    fullResult['mapCountryYAxisData'] = mapCountryYAxisData
+    fullResult['discussionTrendXAxisData'] = discussionTrendXAxisData
+    fullResult['discussionTrendYAxisData'] = discussionTrendYAxisData
+    fullResult['levelPieLegendData'] = levelPieLegendData
+    fullResult['levelPieData'] = levelPieData
+    fullResult['popularTweeterData'] = popularTweeterData
+    fullResult['timeTrackData'] = timeTrackData
+    return {'resCode': 1,
+            'resStr': '获取事件分析结果数据成功',
+            'resObject': fullResult,
+            'resList': []}
+
 
 # 根据方案名查询图表预存数据库
 def queryVisibleDataByPname(pname):
@@ -652,6 +648,37 @@ def storeVisibleData(pname, chartData):
                 'resObject': '',
                 'resList': []}
 
+# 查询每个cluster对应的tweetList，组装成dict
+def getClusterTweetListDict(clusterDbName):
+    client = getMongoClient()
+    db = client[clusterDbName]
+    clusterResultCol = db['clusterResult']
+    clusterTweetCol = db['clusterTweet']
+    clusters = clusterResultCol.find()
+    clusterTweetDict = dict()
+    for cluster in clusters:
+        cluid = cluster['cluid']
+        query = {'cluid': cluid}
+        tweetObjList = clusterTweetCol.find(query)
+        clusterTweetDict[cluid] = list()
+        for tweetObj in tweetObjList:
+            clusterTweetDict[cluid].append(tweetObj['tweet'])
+    return clusterTweetDict
 
 if __name__ == '__main__':
-    getTweetWithTimePots(['2016-02-26'], 'cluster_natural_disaster')
+    # getTweetWithTimePots(['2016-02-26'], 'cluster_natural_disaster')
+    client = getMongoClient()
+    db = client['cluster_2019HKProtest']
+    clusterTweetCol = db['clusterTweet']
+    tweetObjList = clusterTweetCol.find()
+    tweetTimeDict = dict()
+    for tweetObj in tweetObjList:
+        tweet = tweetObj['tweet']
+        time = tweet['created_at'][0:10]
+        if time in tweetTimeDict.keys():
+            tweetTimeDict[time] += 1
+        else:
+            tweetTimeDict[time] = 1
+    sortedList = sorted(tweetTimeDict.items(), key=lambda x: x[1], reverse=True)
+    for item in sortedList:
+        print(item[0] + ':' + str(item[1]))

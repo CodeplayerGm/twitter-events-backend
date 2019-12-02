@@ -96,7 +96,7 @@ def getEventAnalysisFullData():
             if config['timeTrack']:
                 currentData['timeTrackData'] = fullData['timeTrackData']
             backResult = {'resCode': 1,
-                         'resStr': '获取事件分析结果数据成功',
+                         'resStr': '获取预存事件分析结果数据成功',
                          'resObject': currentData,
                          'resList': []}
             return jsonify(backResult)
@@ -108,17 +108,43 @@ def getEventAnalysisFullData():
         fullDataResponse = getEventAnalysisFullDataAction(pname, dbName)
         # 组织数据成功，预存数据，并返回结果
         if fullDataResponse['resCode'] == 1:
-            storeResponse = storeVisibleData(pname, fullDataResponse['resObject'])
-            # 预存成功，直接返回结果
-            if storeResponse['resCode'] == 1:
-                backResult = {'resCode': 1,
-                              'resStr': '获取事件分析结果数据成功',
-                              'resObject': fullDataResponse['resObject'],
-                              'resList': []}
-                return jsonify(backResult)
-            # 预存出错，返回报错信息
+            fullData = fullDataResponse['resObject']
+            currentData = dict()
+            # 查询图表加载项配置信息
+            response = getEventAnalysisConfigDataAction()
+            if response['resCode'] == 1:
+                config = response['resObject']
+                currentData['config'] = config
+                currentData['eventSummary'] = fullData['eventSummary']
+                if config['wordCloud']:
+                    currentData['wordCloudData'] = fullData['wordCloudData']
+                if config['mapHot']:
+                    currentData['mapAddressData'] = fullData['mapAddressData']
+                    currentData['mapCountryData'] = fullData['mapCountryData']
+                    currentData['mapCountryYAxisData'] = fullData['mapCountryYAxisData']
+                if config['discussionTrend']:
+                    currentData['discussionTrendXAxisData'] = fullData['discussionTrendXAxisData']
+                    currentData['discussionTrendYAxisData'] = fullData['discussionTrendYAxisData']
+                if config['levelPie']:
+                    currentData['levelPieLegendData'] = fullData['levelPieLegendData']
+                    currentData['levelPieData'] = fullData['levelPieData']
+                if config['popularTweeter']:
+                    currentData['popularTweeterData'] = fullData['popularTweeterData']
+                if config['timeTrack']:
+                    currentData['timeTrackData'] = fullData['timeTrackData']
+                storeResponse = storeVisibleData(pname, fullData)
+                # 预存成功，直接返回结果
+                if storeResponse['resCode'] == 1:
+                    backResult = {'resCode': 1,
+                                  'resStr': '获取事件分析结果数据成功',
+                                  'resObject': currentData,
+                                  'resList': []}
+                    return jsonify(backResult)
+                # 预存出错，返回报错信息
+                else:
+                    return jsonify(storeResponse)
             else:
-                return jsonify(storeResponse)
+                return jsonify(response)
         # 组织数据出错，返回报错信息
         else:
             return jsonify(fullDataResponse)
